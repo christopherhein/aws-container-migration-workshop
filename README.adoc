@@ -1,0 +1,7 @@
+= AWS Container Migration Workshop
+
+image::images/aws-smile.png[aws logos, 200]
+
+This is a self-paced workshop that explains how to migration an application from
+on-premise into containers in AWS.
+
