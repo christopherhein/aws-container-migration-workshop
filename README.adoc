@@ -2,6 +2,16 @@
 
 image::images/aws-smile.png[aws logos, 200]
 
-This is a self-paced workshop that explains how to migration an application from
-on-premise into containers in AWS.
+This is an instructor led workshop that will walk the attendee through the phases of adopting the cloud.
+
+=== Lab Outcomes
+
+=== Lab Requirements
+- Amazon Web Services Account
+- Lab Deployment resources and lab guide (This Repository)
+- ...
+
+=== Expected time to complete
+3 Hours
+
 
