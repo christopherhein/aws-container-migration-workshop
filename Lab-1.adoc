@@ -1,0 +1,7 @@
+= Container Adoption Lab - Module 1
+
+=== Expected Outcome:
+
+=== Lab Requirements:
+
+=== Average Lab Time:
