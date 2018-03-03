@@ -1,0 +1,28 @@
+FROM maven:3.5-jdk-7 AS build
+
+# set the working directory
+WORKDIR /usr/src/app
+
+# copy just the pom.xml
+COPY ./app/pom.xml /usr/src/app/pom.xml
+
+# just install the dependencies for caching
+RUN mvn dependency:go-offline
+
+# copy the application code
+COPY ./app /usr/src/app
+
+# package the application
+RUN mvn package -Dmaven.test.skip=true
+
+# create our Wildfly based application server
+FROM jboss/wildfly:11.0.0.Final AS application
+
+# copy war file from build layer to application layer
+COPY --from=build /usr/src/app/target/applicationPetstore.war /opt/jboss/wildfly/standalone/deployments/applicationPetstore.war
+
+# expose the application port and the management port
+EXPOSE 8080 9990
+
+# run the application
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]

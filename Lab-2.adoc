@@ -2,6 +2,89 @@
 
 === Expected Outcome:
 
+- Build the Pet Store application within a Container
+- Deploy the Pet Store application to a Wildfly based Application Server
+
 === Lab Requirements:
 
-=== Average Lab Time:
+- Docker for Mac, Docker for Windows, or Docker for Linux
+
+=== Average Lab Time: ~ 30 minutes
+
+=== The Lab
+
+==== Overview
+The Pet Store application is a Java 7 based application that runs on top of the Wildfly (JBoss) application server. The application is built using Maven. We will walk through the steps to build the application using a Maven container then deploying our WAR file to the Wildfly container. We will be using multi-stage builds to facilitate creating a minimal container.
+
+==== Building the Dockerfile
+
+1. To get started, switch to the Lab2 folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
+
+2. The first stage of our Dockerfile will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our Dockerfile will need to copy the code into the container, install the dependencies, then build the application using Maven.
+
+3. The second stage of our Dockerfile will be to build our Wildfly application server. We will need to copy the WAR file we created in the first stage to the second stage. The WAR file is built to `/usr/src/app/target/applicationPetstore.war` in the first stage. We will need to copy that WAR file to the `/opt/jboss/wildfly/standalone/deployments/applicationPetstore.war`. Wildfly will deploy that application on boot.
+
+4. Build the application.
+```bash
+docker image build -t aws-workshops/petstore:latest .
+```
+
+5. Run the application using the following command.
+```bash
+docker container run --rm --name=petstore -p 8080:8080 aws-workshops/petstore:latest
+```
+
+==== Reviewing the Dockerfile
+Let's review the Dockerfile and walk through the result. The first stage will be based off our "tools" container, in this case that is maven. This container could be a container within your organization that houses all the tools your development team needs. We alias this first stage as the "build" stage.
+
+```Dockerfile
+FROM maven:3.5-jdk-7 AS build
+```
+
+Next we are going to install the dependencies. We do this ahead of time so that we can leverage the Docker build cache to increase the speed of build times. To accomplish this we copy the pom.xml and install the dependencies. We then copy our application code and build the applicaiton. This enables developers to iterate on their code without having to install dependencies each time.
+
+```Dockerfile
+# set the working directory
+WORKDIR /usr/src/app
+
+# copy just the pom.xml
+COPY ./app/pom.xml /usr/src/app/pom.xml
+
+# just install the dependencies for caching
+RUN mvn dependency:go-offline
+```
+
+Finally, we build the application.
+
+```Dockerfile
+# copy the application code
+COPY ./app /usr/src/app
+
+# package the application
+RUN mvn package -Dmaven.test.skip=true
+```
+
+Next, in the same Dockerfile we create a new stage called "application." Then from the build stage, we copy the WAR file we compiled to the Wildfly deployments folder. Wildfly will deploy this WAR on boot. We then expose port 8080 for our application and port 9990 for Wildfly management. We then define the command to start the application.
+
+```Dockerfile
+# create our Wildfly based application server
+FROM jboss/wildfly:11.0.0.Final AS application
+
+# copy war file from build layer to application layer
+COPY --from=build /usr/src/app/target/applicationPetstore.war /opt/jboss/wildfly/standalone/deployments/applicationPetstore.war
+
+# expose the application port and the management port
+EXPOSE 8080 9990
+
+# run the application
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+```
+
+==== Running the Application
+To run the application we will execute the follow Docker command. This command runs a container called "petstore" and maps port 8080 within the container to 8080 on your local machine.
+
+```bash
+docker container run --rm --name=petstore -p 8080:8080 aws-workshops/petstore:latest
+```
+
+Visit http://localhost:8080/applicationPetstore to view the application.
