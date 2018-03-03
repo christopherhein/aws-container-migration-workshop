@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  postgres:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    environment:
+      - 'POSTGRES_DB=petstore'
+      - 'POSTGRES_USER=admin'
+      - 'POSTGRES_PASSWORD=password'
+
+  petstore:
+    build:
+      context: ./
+      dockerfile: Dockerfile.result
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    environment:
+      - 'DB_URL=jdbc:postgresql://postgres:5432/petstore?ApplicationName=applicationPetstore'
+      - 'DB_HOST=postgres'
+      - 'DB_PORT=5432'
+      - 'DB_NAME=petstore'
+      - 'DB_USER=admin'
+      - 'DB_PASS=password'
