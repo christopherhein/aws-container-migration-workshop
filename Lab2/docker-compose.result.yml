@@ -19,6 +19,7 @@ services:
       - postgres
     ports:
       - 8080:8080
+      - 9990:9990
     environment:
       - 'DB_URL=jdbc:postgresql://postgres:5432/petstore?ApplicationName=applicationPetstore'
       - 'DB_HOST=postgres'
