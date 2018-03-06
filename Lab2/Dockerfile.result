@@ -38,4 +38,5 @@ COPY ./standalone.xml /opt/jboss/wildfly/standalone/configuration/standalone.xml
 EXPOSE 8080 9990
 
 # run the application
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+ENTRYPOINT [ "/opt/jboss/wildfly/bin/standalone.sh" ]
+CMD [ "-b", "0.0.0.0", "-bmanagement", "0.0.0.0" ]

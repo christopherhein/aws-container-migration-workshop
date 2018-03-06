@@ -2,12 +2,13 @@
 
 === Expected Outcome:
 
+- Install Docker Tooling
 - Build the Pet Store application within a Container
 - Deploy the Pet Store application to a Wildfly based Application Server
 
 === Lab Requirements:
 
-- Docker for Mac, Docker for Windows, or Docker for Linux
+- [Docker for Mac](https://docs.docker.com/docker-mac), [Docker for Windows](https://docs.docker.com/docker-for-mac/install/), or [Docker for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 
 === Average Lab Time: 30-45 minutes
 
@@ -20,9 +21,9 @@ The Pet Store application is a Java 7 based application that runs on top of the 
 
 1. To get started, switch to the Lab2 folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
 
-2. The first stage of our Dockerfile will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our Dockerfile will need to copy the code into the container, install the dependencies, then build the application using Maven.
+2. The first stage of our `Dockerfile` will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our `Dockerfile` will need to copy the code into the container, install the dependencies, then build the application using Maven.
 
-3. The second stage of our Dockerfile will be to build our Wildfly application server. We will need to copy the WAR file we created in the first stage to the second stage. The WAR file is built to `/usr/src/app/target/applicationPetstore.war` in the first stage. We will need to copy that WAR file to the `/opt/jboss/wildfly/standalone/deployments/applicationPetstore.war`. We will also need to copy the `standalone.xml` file to the proper location `/opt/jboss/wildfly/standalone/configuration/standalone.xml`. Wildfly will deploy that application on boot. You will also need to install the PostgreSQL driver which is already downloaded. Include the script below to install.
+3. The second stage of our `Dockerfile` will be to build our Wildfly application server. We will need to copy the WAR file we created in the first stage to the second stage. The WAR file is built to `/usr/src/app/target/applicationPetstore.war` in the first stage. We will need to copy that WAR file to the `/opt/jboss/wildfly/standalone/deployments/applicationPetstore.war`. We will also need to copy the `standalone.xml` file to the proper location `/opt/jboss/wildfly/standalone/configuration/standalone.xml`. Wildfly will deploy that application on boot. You will also need to install the PostgreSQL driver which is already downloaded. Include the script below to install.
 
 ```Dockerfile
 # install postgresql support
@@ -37,7 +38,7 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' \
 ```
 
 ==== Reviewing the Dockerfile
-Let's review the Dockerfile and walk through the result. The first stage will be based off our "tools" container, in this case that is maven. This container could be a container within your organization that houses all the tools your development team needs. We alias this first stage as the "build" stage.
+Let's review the `Dockerfile` and walk through the result. The first stage will be based off our "tools" container, in this case that is maven. This container could be a container within your organization that houses all the tools your development team needs. We alias this first stage as the "build" stage.
 
 ```Dockerfile
 FROM maven:3.5-jdk-7 AS build
@@ -66,7 +67,7 @@ COPY ./app /usr/src/app
 RUN mvn package -Dmaven.test.skip=true
 ```
 
-Next, in the same Dockerfile we create a new stage called "application." Then from the build stage, we copy the WAR file we compiled to the Wildfly deployments folder. Wildfly will deploy this WAR on boot. We then expose port 8080 for our application and port 9990 for Wildfly management. We then define the command to start the application.
+Next, in the same `Dockerfile` we create a new stage called "application." Then from the build stage, we copy the WAR file we compiled to the Wildfly deployments folder. Wildfly will deploy this WAR on boot. We then expose port 8080 for our application and port 9990 for Wildfly management. We then define the command to start the application.
 
 ```Dockerfile
 # create our Wildfly based application server
@@ -92,7 +93,8 @@ COPY ./standalone.xml /opt/jboss/wildfly/standalone/configuration/standalone.xml
 EXPOSE 8080 9990
 
 # run the application
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+ENTRYPOINT [ "/opt/jboss/wildfly/bin/standalone.sh" ]
+CMD [ "-b", "0.0.0.0", "-bmanagement", "0.0.0.0" ]
 ```
 
 ==== Defining the Application
