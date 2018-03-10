@@ -1,7 +1,388 @@
-= Container Adoption Lab - Module 4
+= Container Adoption Lab
+
+== Module 4
 
 === Expected Outcome:
 
+. Install the petstore application to your Kubernetes cluster
+. Show how the application is self healing
+
 === Lab Requirements:
 
-=== Average Lab Time:
+. Kubernetes cluster
+. AWS RDS Database
+
+=== Average Lab Time: 20-30 minutes
+
+=== The Lab
+
+==== Overview
+
+Just like you did in link:../Lab-2.adoc[Lab 2] where you created a
+docker-compose.yaml file to deploy your containerized application to Docker for
+X in this module we will create the necessary configurations to deploy the
+petstore into a Kubernetes cluster running in AWS connecting to an RDS database.
+
+Before we get started making the deploy scripts for running the petstore on
+Kubernetes, we're going to talk about Kubernetes basics.
+
+==== Kubernetes Basics
+
+// TODO: Do we need to do any introduction into k8s?
+
+==== Getting Started
+
+1. To get started, switch to the Lab4 folder within this repository. Then create
+   a new file called `manifest.yaml`. Then open the `manifest.yaml` in your
+   editor of choice.
+2. Then we're going to create a `Deployment` and a `Service` that will show you how
+   to recreate the swarm style deployment on top of Kubernetes.
+3. Deploy it!
+
+===== Create the Deployment
+
+In the `manifest.yaml` you'll first need to define the 4 top level components of
+a Kubenetes manifest.
+
+[source,shell]
+----
+apiVersion:
+kind:
+metadata:
+spec:
+----
+
+In almost all Kubernetes manifest they will have these 4 keys, with the
+acception of CustomResourceDefinitions (CRDs), Secrets, and ConfigMaps. The
+apiVersion can be found along with the documentation for each Kubernetes
+resource.
+
+Next we'll fill them out. `apiVersion: apps/v1beta1` and `kind: Deployment` then
+under `metadata:` we're going to create an object with `name` and `labels`
+
+[source,shell]
+----
+name: petstore
+labels:
+  app: petstore
+----
+
+If you are deploying this into a `namespace` you will define that here.
+Namespaces help you to create logical separations of applications, such as
+`dev`, `test`, `prod` or at a service level.
+
+Now we'll fill out the `spec`. The `spec` defines how the `Deployment` is
+configured. the top level keys being `replicas`, `selector`, and `template`
+
+For this application we're going to deploy only one `replica` so that should be
+`replicas: 1`. For the selector we need to specify how the deployment is going
+to be married to the pods it deploys.
+
+[source,shell]
+----
+selector:
+  matchLabels:
+    app: petstore
+----
+
+`matchLabels` is a manifest function of sorts that allows you to specify how it
+references another resource. In this example we're referencing a
+`ReplicaController` and `Pods` by the `label.app: petstore`
+
+Last we'll define the `template` this includes all the information necessary to
+run the application. including the `labels` for the pods, the container(s) the
+port(s), volumes that need to be mounted or environment variables.
+
+[source,shell]
+----
+metadata:
+  labels:
+    app: petstore
+spec:
+  containers:
+  - name: petstore
+    image: {REPLACE_WITH_ECR_REGISTRY}/petstore
+    ports:
+    - name: http-server
+      containerPort: 8080
+    - name: wildfly-cord
+      containerPort: 9990
+    env:
+    - name: DB_URL
+      value: "jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore"
+    - name: DB_HOST
+      value: {REPLACE_WITH_RDS_HOST}
+    - name: DB_PORT
+      value: "5432"
+    - name: DB_NAME
+      value: petstore
+    - name: DB_USER
+      value: {REPLACE_WITH_RDS_USER}
+    - name: DB_PASS
+      value: {REPLACE_WITH_RDS_PASS}
+----
+
+IMPORTANT: If you don't replace `{REPLACE_WITH_RDS_HOST}`,
+`{REPLACE_WITH_RDS_USER}`, `{REPLACE_WITH_RDS_PASS}`, `{REPLACE_WITH_RDS_URL}`
+your deployment won't successfully pass.
+
+Under the `spec.containers` you can see that we have and `image` which can be
+Amazon Elastic Container Registry or any other Docker Registry,
+link:https://quay.io[quay.io], link:https://hub.docker.com[hub.docker.com]. We
+also have an `env` which define the host for the database host and username and
+password.
+
+To test your deployment you can use `kubectl` to deploy it.
+
+[source,shell]
+----
+kubectl apply -f manifest.yaml
+----
+
+This will create a `deployment` then 1 subsequent `pod`
+
+[source,shell]
+----
+$ kubectl get deploy,pod
+NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deploy/petstore       1         1         1            1           1m
+
+NAME                               READY     STATUS    RESTARTS   AGE
+po/petstore-694b766cc8-lqlvw       1/1       Running   0          1m
+----
+
+To view the application in it's current state you can run `port-forward` from
+the `kubectl` like so.
+
+[source,shell]
+----
+kubectl port-forward $(kubectl get po -l app=petstore -o jsonpath="{.items[0].metadata.name}") 8080:8080
+----
+
+This will forward the remote port to `localhost:8080` if you are on macOS you
+can view this by typing.
+
+[source,shell]
+----
+open http://localhost:8080/applicationPetstore
+----
+
+At this point your application is running within Kubernetes but it's not able to
+handle requests, this is due to the service not being externally exposed. To do
+this Kubernetes has what is called a `Service`.
+
+===== Create a Service
+
+Now that we have our deployment up and running we need to create the service. To
+do so you can add `---` below the `Deployment` yaml block. like so.
+
+[source,shell]
+----
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata: ...
+spec: ...
+---
+apiVersion: v1
+kind: Service
+metadata: ...
+spec: ...
+----
+
+With this inplace we can start to fill out all the necessary parts. For the
+`metadata` attribute we need to define the `name` of the service. We typically
+recommend using the same name as the pod/deployment to make this easy to
+remember.
+
+[source,shell]
+----
+metadata:
+  name: petstore
+----
+
+For the `spec`, you use this to define the way that it selects the `pods` and
+what ports it should be connected to.
+
+
+[source,shell]
+----
+selector:
+  name: petstore
+ports:
+- port: 80
+  targetPort: http-server
+  name: http
+type: LoadBalancer
+----
+
+The above tells Kubernetes that you want to select a pod with a `name: petstore`
+and then exposes the service on `port: 80`, mapping that to `targetPort:
+http-server` as we defined in the `Deployment` it listens on `8080` that is
+named `http-server`. Last, we define it as a `type: LoadBalancer` which will
+instruct Kubernetes to boot an Amazon Elastic Load Balancer (ELB).
+
+The finalized manifest should look something like.
+
+[source,shell]
+----
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cordination
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          value: jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore
+        - name: DB_HOST
+          value: {REPLACE_WITH_RDS_HOST}
+        - name: DB_PORT
+          value: 5432
+        - name: DB_NAME
+          value: petstore
+        - name: DB_USER
+          value: {REPLACE_WITH_RDS_USER}
+        - name: DB_PASS
+          value: {REPLACE_WITH_RDS_PASS}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petstore
+spec:
+  selector:
+    app: petstore
+  ports:
+  - port: 80
+    targetPort: http-server
+    name: http
+  type: LoadBalancer
+----
+
+
+Now that we have a completed manifest we can apply the update to Kubernetes and
+it will create the necessary resources, including the ELB and the port mapping.
+
+[source,shell]
+----
+kubectl apply -f manifest.yaml
+----
+
+Now we can list the pods, deployments, and services running to see them all
+together.
+
+
+[source,shell]
+----
+$ kubectl get po,svc,deploy
+
+NAME                               READY     STATUS    RESTARTS   AGE
+po/petstore-66ff5667c-ktchh        1/1       Running   0          39m
+
+NAME                CLUSTER-IP       EXTERNAL-IP        PORT(S)          AGE
+svc/petstore        100.70.102.228   a40625f2b3212...   80:30070/TCP     1h
+
+NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deploy/petstore       1         1         1            1           1h
+----
+
+Now that you can see the pods and services we can use the `-o wide` flag on the
+`get svc` call to return the load balancer DNS, or use the second command to
+parse it. and open.
+
+[source,shell]
+----
+kubectl get svc -o wide
+----
+
+Using the `kubectl` formatting:
+
+[source,shell]
+----
+open http://$(kubectl get svc petstore -o jsonpath="{.status.loadBalancer.ingress..hostname}")/applicationPetstore
+----
+
+==== Self Healing
+
+One of the great things about Kubernetes is the built in ability to keep your
+cluster at a specific state. Interally it is running a constant control loop
+that is validating it's state against the stored state in the key value store
+`etcd` when something is incorrect, (e.g. 3 pods are running instead of 4) it
+will automatically "heal" and create a forth pod to fill that need. To
+demonstrate this functionality you can try killing your running pod and seeing
+it recreate itself.
+
+Do do so first open a new terminal window that is running the watch command
+triggered by using the `-w` command with `kubectl`
+
+[source,shell]
+----
+kubectl get po -w
+----
+
+Now back in your original window we want to run the `delete` command on the
+running pod. This will cause the Docker daemon to kill the pod and Kubernetes
+will recreate it after a couple seconds.
+
+[source,shell]
+----
+kubectl delete pod $(kubectl get po -l app=petstore -o jsonpath="{.items..metadata.name}")
+----
+
+As long as your are watching the `kubectl get po -w` window you will be able to
+see a new pod gets created, while the first pod changes to a `Terminating`
+state.
+
+==== Updating Your Application
+
+Now that we've seen how to Kubernetes can self-heal we need to understand how to
+update your applications inplace. To do this we'll use the same command we used
+to deploy the applications.
+
+First update the `manifest.yaml` to have a `replicas: 2` key instead of a
+`replicas: 1` this will tell Kubernetes to boot a second version of the petstore
+application so that it had 2 copies. After you have done that you can `apply`
+those changes.
+
+[source,shell]
+----
+$ kubectl apply -f manifest.result.yaml
+deployment "petstore" configured
+service "petstore" configured
+----
+
+You might notice but the above command `configured` each of the `deployment` and
+the `service` this means that it did an update to the running version in
+Kubernetes. Then the control loop made it happen.
+
+To see the running pod you can list both pods with the `get po` command.
+
+[source,shell]
+----
+$ kubectl get po
+NAME                            READY     STATUS    RESTARTS   AGE
+petstore-66ff5667c-7vvsd        1/1       Running   0          1m
+petstore-66ff5667c-jgksd        1/1       Running   0          1m
+----
+
+
