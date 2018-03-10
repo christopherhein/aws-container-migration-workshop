@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: {REPLACE_WITH_ECR_REGISTRY}/petstore
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          value: "jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore"
+        - name: DB_HOST
+          value: {REPLACE_WITH_RDS_HOST}
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: petstore
+        - name: DB_USER
+          value: {REPLACE_WITH_RDS_USER}
+        - name: DB_PASS
+          value: {REPLACE_WITH_RDS_PASS}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petstore
+spec:
+  selector:
+    app: petstore
+  ports:
+  - port: 80
+    targetPort: http-server
+    name: http
+  type: LoadBalancer
