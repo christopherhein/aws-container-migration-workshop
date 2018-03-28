@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          value: "jdbc:postgresql://rds-container-workshop-db.cw0bksenkj9e.us-east-2.rds.amazonaws.com:5432/petstore?ApplicationName=applicationPetstore"
+        - name: DB_HOST
+          value: rds-container-workshop-db.cw0bksenkj9e.us-east-2.rds.amazonaws.com
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: petstore
+        - name: DB_USER
+          value: username
+        - name: DB_PASS
+          value: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: petstore
+spec:
+  selector:
+    app: petstore
+  ports:
+  - port: 80
+    targetPort: http-server
+    name: http
+  type: LoadBalancer
