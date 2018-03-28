@@ -1,7 +1,423 @@
-= Container Adoption Lab - Module 5
+= Container Adoption Lab
+
+== Module 5
 
 === Expected Outcome:
 
+1. Configure your Petstore application using a ConfigMap
+2. Configure your Petstore application using a Secret
+
 === Lab Requirements:
 
-=== Average Lab Time:
+1. Kubernetes cluster
+2. Amazon RDS Database
+
+=== Average Lab Time: 15-20 minutes
+
+=== The Lab
+
+==== Overview
+
+In link:./Lab-4.adoc[Lab 4] we showed you how to deploy the petstore application
+to your Kubernetes cluster. Now that everything is working we're going to start
+using production-ize it. First thing is to show you how to use a `ConfigMap` that
+will help you to mount or export extra data.
+
+For the purpose of this Lab we're going to use the same data in the `ConfigMap`
+or a `Secret`. In a typical application this data would belong to a `Secret`.
+
+==== Creating a ConfigMap
+
+The first thing we need to do is create a `configmap.yaml` manifest file. In
+this file we're going to start by copying the `Deployment` from the
+`Lab4/manifest.yaml` that you created in the last Lab and paste this into the
+new `configmap.yaml` it should look like this.
+
+[source,shell]
+----
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          value: "jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore"
+        - name: DB_HOST
+          value: {REPLACE_WITH_RDS_HOST}
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: petstore
+        - name: DB_USER
+          value: {REPLACE_WITH_RDS_USER}
+        - name: DB_PASS
+          value: {REPLACE_WITH_RDS_PASS}
+----
+
+Now that we have the original deployment in the manifest we need to add the
+`ConfigMap` then we will modify the `env` key to add support for pulling the
+reference directly from the `ConfigMap`.
+
+First thing we need to do is define the core keys like we did with the
+deployment and service, those are `apiVersion`, `kind`, `metadata` and `data`.
+
+[source,shell]
+----
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: ...
+data: ...
+----
+
+Now that we have that we can start to fill out the necessary fields. `metadata`
+should include `name: petstore-config` this will be used to reference the
+`ConfigMap` like so.
+
+[source,shell]
+----
+metadata:
+  name: petstore-config
+----
+
+With this in-place we can add all the `data` values. In this example we're using
+a hash to define the environment variables, this can also be done via and
+external file from the `kubectl` cli.
+
+[source,shell]
+----
+data:
+  DB_URL:
+  "jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore"
+  DB_HOST: {REPLACE_WITH_RDS_HOST}
+  DB_PORT: "5432"
+  DB_NAME: petstore
+  DB_USER: {REPLACE_WITH_RDS_USER}
+  DB_PASS: {REPLACE_WITH_RDS_PASS}
+----
+
+This hash defines all the same parameters that we used from
+link:./Lab-4.adoc[Lab 4] to define the environment. Now we need to update the
+deployment to make the application use these configs.
+
+Under the `spec.template.spec.containers.env` we need to modify the `value` key
+for each to use `valueFrom` instead with a nested hash like this.
+
+[source,shell]
+----
+env:
+- name: DB_URL
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_URL
+----
+
+This uses the `configMapKeyRef` key to define the configmap that Kubernetes
+should reference and the `key` that should it should pull from that `ConfigMap`.
+
+You will need to update this for all the `env`'s that have been defined. This
+should look like this when it is done.
+
+[source,shell]
+----
+env:
+- name: DB_URL
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_URL
+- name: DB_HOST
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_HOST
+- name: DB_PORT
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_PORT
+- name: DB_NAME
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_NAME
+- name: DB_USER
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_USER
+- name: DB_PASS
+  valueFrom:
+    configMapKeyRef:
+      name: petstore-config
+      key: DB_PASS
+----
+
+Now that we have the `ConfigMap` references in-place we can deploy this to the
+cluster and see the updated application boot.
+
+[source,shell]
+----
+kubectl apply -f configmap.yaml
+----
+
+Now lets run a describe on the pods to make sure the configuration updated.
+
+[source,shell]
+----
+$ kubectl describe po -l app=petstore
+Name:           petstore-564b4c8bdb-q92mv
+Namespace:      default
+Node:           ip-172-20-114-228.us-east-2.compute.internal/172.20.114.228
+Start Time:     Tue, 27 Mar 2018 23:39:32 -0700
+Labels:         app=petstore
+                pod-template-hash=1206074686
+Annotations:
+kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"petstore-564b4c8bdb","uid":"ba43ee7d-3252-11e8-bbcb-0a47659...
+Status:         Running
+IP:             100.96.7.55
+Created By:     ReplicaSet/petstore-564b4c8bdb
+Controlled By:  ReplicaSet/petstore-564b4c8bdb
+Containers:
+  petstore:
+    Container ID:       docker://eb406ddc4fdf395dbb4baf5eabda724123be2e8e05ca63423a7d90762cd42f2a
+    Image:              christopherhein/petstore:latest
+    Image ID:           docker-pullable://christopherhein/petstore@sha256:a7fcf8247e7fd524ef52ddc848820f2d0eed030d14224ccbe606f3f59372c15e
+    Ports:              8080/TCP, 9990/TCP
+    State:              Running
+      Started:          Tue, 27 Mar 2018 23:39:34 -0700
+    Ready:              True
+    Restart Count:      0
+    Environment:
+      DB_URL:   <set to the key 'DB_URL' of config map 'petstore-config'>       Optional: false
+      DB_HOST:  <set to the key 'DB_HOST' of config map 'petstore-config'>      Optional: false
+      DB_PORT:  <set to the key 'DB_PORT' of config map 'petstore-config'>      Optional: false
+      DB_NAME:  <set to the key 'DB_NAME' of config map 'petstore-config'>      Optional: false
+      DB_USER:  <set to the key 'DB_USER' of config map 'petstore-config'>      Optional: false
+      DB_PASS:  <set to the key 'DB_PASS' of config map 'petstore-config'>      Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2cwnz (ro)
+Conditions:
+  Type          Status
+  Initialized   True
+  Ready         True
+  PodScheduled  True
+Volumes:
+  default-token-2cwnz:
+    Type:       Secret (a volume populated by a Secret)
+    SecretName: default-token-2cwnz
+    Optional:   false
+QoS Class:      BestEffort
+Node-Selectors: <none>
+Tolerations:    node.alpha.kubernetes.io/notReady:NoExecute for 300s
+                node.alpha.kubernetes.io/unreachable:NoExecute for 300s
+Events:         <none>
+----
+
+Under the `Environment` section you will see that the values are being pulled
+from the referenced `ConfigMap`. 
+
+IMPORTANT: You should be able to see this `DB_URL:   <set to the key 'DB_URL' of config map 'petstore-config'>`
+
+===== Benefits
+
+Using a `ConfigMap` will allow you to update your applications environment
+independent from the actual deployment manifest, allowing you to deploy multiple
+environments with different associated resources or different `flags` passed in.
+
+==== Creating A Secret
+
+Now that you've learned how to create a `ConfigMap` we're going to `cp` that
+file and name it `secret.yaml`, the reason we're copying is the schema to define
+a `Secret` is almost identical to the schema for a `ConfigMap`.
+
+Once you have copied the file, we can open it in out text editor and change
+`kind: ConfigMap` to `kind: Secret` this will tell Kuberenets to create a
+`Secret` type when we deploy.
+
+Next we'll need to add a new key of `type` this should be set to `Opaque`.
+This tells Kubernetes to store the secret as unstructured data, other
+alternatives coule be `ServiceAccount` or `ImagePullSecret`.
+
+
+Now our config for the `Secret` should look like this.
+
+[source,shell]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: petstore-config
+type: Opaque
+data: ...
+----
+
+In this example we're replacing the usage of the `ConfigMap` and treating the
+same contents as a secret. The once difference is we need to `base64` the value
+for each key. If you are on `macOS` you can do this via the command like so.
+
+[source,shell]
+----
+echo "value" | base64
+----
+
+We then need to replace the existing values with those `base64` encoded versions.
+
+Next we'll update the `spec.template.spec.containers.env` keys to use the secret
+instead. To do this change all the `configMapKeyRef` to use `secretKeyRef`.
+Simple change but this instructs Kubernets to grab the contents from the
+`Secret` rather than the `ConfigMap`.
+
+Your updated config should look something like this.
+
+[source,shell]
+----
+...
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_URL
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PASS
+----
+
+After all that is complete you can then `apply` manifest, it will update the
+exising pods and change them from using `ConfigMap` to using `Secret` types.
+
+[source,shell]
+----
+kubectl apply -f secret.yaml
+----
+
+Then we can describe the `pods` like we did with `ConfigMaps` and see that they
+have been changed.
+
+[source,shell]
+----
+$ kubectl describe po -l app=petstore
+Name:           petstore-775db6bdd4-lhz2d
+Namespace:      default
+Node:           ip-172-20-67-175.us-east-2.compute.internal/172.20.67.175
+Start Time:     Wed, 28 Mar 2018 13:01:30 -0700
+Labels:         app=petstore
+                pod-template-hash=3318626880
+Annotations:    kubernetes.io/created-by={"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicaSet","namespace":"default","name":"petstore-775db6bdd4","uid":"ce951460-32c2-11e8-bbcb-0a47659...
+Status:         Running
+IP:             100.96.6.62
+Created By:     ReplicaSet/petstore-775db6bdd4
+Controlled By:  ReplicaSet/petstore-775db6bdd4
+Containers:
+  petstore:
+    Container ID:       docker://f615da479a6e111cde1f57e8cc6a19483d6530ff9b595946a7b6884d6c5f986a
+    Image:              christopherhein/petstore:latest
+    Image ID:           docker-pullable://christopherhein/petstore@sha256:a7fcf8247e7fd524ef52ddc848820f2d0eed030d14224ccbe606f3f59372c15e
+    Ports:              8080/TCP, 9990/TCP
+    State:              Running
+      Started:          Wed, 28 Mar 2018 13:08:34 -0700
+    Ready:              True
+    Restart Count:      0
+    Environment:
+      DB_URL:   <set to the key 'DB_URL' in secret 'petstore-config'>   Optional: false
+      DB_HOST:  <set to the key 'DB_HOST' in secret 'petstore-config'>  Optional: false
+      DB_PORT:  <set to the key 'DB_PORT' in secret 'petstore-config'>  Optional: false
+      DB_NAME:  <set to the key 'DB_NAME' in secret 'petstore-config'>  Optional: false
+      DB_USER:  <set to the key 'DB_USER' in secret 'petstore-config'>  Optional: false
+      DB_PASS:  <set to the key 'DB_PASS' in secret 'petstore-config'>  Optional: false
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2cwnz (ro)
+Conditions:
+  Type          Status
+  Initialized   True
+  Ready         True
+  PodScheduled  True
+Volumes:
+  default-token-2cwnz:
+    Type:       Secret (a volume populated by a Secret)
+    SecretName: default-token-2cwnz
+    Optional:   false
+QoS Class:      BestEffort
+Node-Selectors: <none>
+Tolerations:    node.alpha.kubernetes.io/notReady:NoExecute for 300s
+                node.alpha.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  FirstSeen     LastSeen        Count   From                                                    SubObjectPath                     Type            Reason                  Message
+  ---------     --------        -----   ----                                                    -------------                     --------        ------                  -------
+  7m            7m              1       default-scheduler                                                Normal           Scheduled               Successfully assigned petstore-775db6bdd4-lhz2d to ip-172-20-67-175.us-east-2.compute.internal
+  7m            7m              1       kubelet, ip-172-20-67-175.us-east-2.compute.internal             Normal           SuccessfulMountVolume   MountVolume.SetUp succeeded for volume "default-token-2cwnz"
+  7m            6m              6       kubelet, ip-172-20-67-175.us-east-2.compute.internal    spec.containers{petstore} Normal          Pulled                  Successfully pulled image "christopherhein/petstore:latest"
+  7m            6m              6       kubelet, ip-172-20-67-175.us-east-2.compute.internal    spec.containers{petstore} Warning         Failed                  Error: secrets "petstore-config" not found
+  7m            6m              6       kubelet, ip-172-20-67-175.us-east-2.compute.internal             Warning          FailedSync              Error syncing pod
+  7m            2m              24      kubelet, ip-172-20-67-175.us-east-2.compute.internal    spec.containers{petstore} Normal          Pulling                 pulling image "christopherhein/petstore:latest"
+----
