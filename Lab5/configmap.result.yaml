@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: petstore-config
+data:
+  DB_URL: "jdbc:postgresql://{REPLACE_WITH_RDS_URL}:5432/petstore?ApplicationName=applicationPetstore"
+  DB_HOST: {REPLACE_WITH_RDS_HOST}
+  DB_PORT: "5432"
+  DB_NAME: petstore
+  DB_USER: {REPLACE_WITH_RDS_USER}
+  DB_PASS: {REPLACE_WITH_RDS_PASS}
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_URL
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            configMapKeyRef:
+              name: petstore-config
+              key: DB_PASS
