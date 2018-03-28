@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        resources:
+          requests:
+            memory: 512m
+            cpu: 512m
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_URL
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PASS

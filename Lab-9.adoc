@@ -1,7 +1,341 @@
-= Container Adoption Lab - Module 9
+= Container Adoption Lab
+
+== Module 9
 
 === Expected Outcome:
 
+1. Setup Horizontal Pod Autoscaler
+2. Run simulated load to increase pods deployed
+3. Install Cluster Autoscaler
+4. Run simulated load and see more instances boot
+
 === Lab Requirements:
 
-=== Average Lab Time:
+1. Kubernetes cluster
+
+=== Average Lab Time: 30 minutes
+
+=== Lab
+
+==== Overview
+
+In the last few labs we've walk through creating your applications, deploying
+them into Kubernetes, setting up a CI/CD pipeline, logging your applications and
+many more. In this Lab we're going to shwo you a couple ways you can make your
+cluster more resilient by allowing them to flexibly scale based on a multitude
+of parameters.
+
+==== Manual Scaling
+
+Before we dive into how to setup autoscaling we should discuss the other
+mechanisms that we have  to changes the the amount of pods running for a
+specific application. First we have the `replicas` key in your `ReplicaSet` or
+your `Deployment` changing this number then re-`apply` to tell Kubernetes that
+you need to create more copies.
+
+The other way you can do this is the imperative way by using `kubectl` this is
+not backed by any concret systems like the manifests but it is useful when you
+need more pods instantly.
+
+[source,shell]
+----
+$ kubectl scale --replicas=4 deploy/petstore
+deployment "petstore" scaled
+----
+
+As you can see in the above command you can pass a `--replicas=X` flag with the
+deployment or relicaset name `deploy/petstore` and it will update the etcd
+server to reflect the new state of running 4 instances.
+
+IMPORTANT: The next time you deploy a manifest file with a different `replicas`
+number this will get overwritten. Meaning if you are in the middle of a spike in
+traffic and you've manually scaled your cluster if you were to deploy an update
+this would reset the number causing it to not be able to handle the load.
+
+==== Horizontal Pod Autoscaler
+
+To help with this the community created the Horizontal Pod Autoscaler (HPA) for
+short. This uses the CPU or any custom metrics provided by the applications to
+create new pods when the requirements are met.
+
+For cluster requirements we need to deploy a tool called `heapster` this is a
+cluster wide metrics aggergator. To deploy it's as simple as deploying any other
+Kubernetes application.
+
+[source,shell]
+----
+$ kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/monitoring-standalone/v1.7.0.yaml
+deployment "heapster" created
+service "heapster" created
+serviceaccount "heapster" created
+clusterrolebinding "heapster" created
+role "system:pod-nanny" created
+rolebinding "heapster-binding" created
+----
+
+Next `cd Lab9` in this directory create a new file called `hpa.yaml` in
+this `yaml` file copy over the last known `Deployment` of the petstore
+application. It should look something like this.
+
+[source,shell]
+----
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: petstore
+  labels:
+    app: petstore
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petstore
+  template:
+    metadata:
+      labels:
+        app: petstore
+    spec:
+      containers:
+      - name: petstore
+        image: christopherhein/petstore:latest
+        ports:
+        - name: http-server
+          containerPort: 8080
+        - name: wildfly-cord
+          containerPort: 9990
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_URL
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: petstore-config
+              key: DB_PASS
+----
+
+With this copied over we need to make some adjustments to allow HPA to work. If
+we need to restrict the resources so that it has something to scale based on.
+
+Edit the `spec.template.spec.containers..` block and add the following to add a
+request for a certain amount of CPU.
+
+[source,shell]
+----
+containers:
+- name: petstore
+  ...
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 1Gi
+----
+
+Then we'll create a new config block and add in the HPA manifest for breviety
+here is the full config file and we'll talk about the individual components.
+
+[source,shell]
+----
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: petstore
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: petstore
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 50
+----
+
+Lets deploy that update using `apply` like so.
+
+[source,shell]
+----
+kubectl apply -f hpa.yaml
+----
+
+Now that we have some restrictions on the amount of CPU and Memory the
+application can use we can simulate some load.
+
+We first should `-w` the `hpa` resource in Kubernetes so that we can see the
+targets and how close we are to hitting that target for the autoscale event. In
+a new shell run the following.
+
+[source,shell]
+----
+kubectl get hpa -w
+----
+
+Then back in your other shell we need to open up a busybox pod in the cluster.
+With this pod we're going to `wget` the petstore which will trigger an autoscale
+event.
+
+[source,shell]
+----
+kubectl run -it --rm load-generator --image=busybox /bin/sh
+----
+
+This will open an interactive shell that you can execute the `wget` call in a
+loop.
+
+[source,shell]
+----
+while true; do wget -q -O-
+http://petstore.default.svc.cluster.local/applicationPetstore/shopping/main.xhtml; done
+----
+
+Once you run this command it will make requests against the local Kubernetes
+service. In the other console you should see the `petstore` row update to show a
+higher percentage of the target, after a couple minutes you will see the
+`REPLICAS` column update from `1` to a higher number.
+
+[source,shell]
+----
+NAME       REFERENCE             TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+petstore   Deployment/petstore   16% / 50%    1         10        1         2h
+# after sometime 
+petstore   Deployment/petstore   171% / 50%   1         10        4         2h
+----
+
+==== Cluster Autoscaler
+
+Now that we have the pods being autoscaled to reflect the load we need to make
+the cluster elastic by using cluster autoscaler. To deploy this you first need
+to set the proper IAM Policy on the nodes.
+
+This cluster was first set up using the `kops` toolkit as such you can edit the
+node roles using the `kops` cli.
+
+[source,shell]
+----
+kops edit cluster --name example.cluster.k8s.local
+----
+
+This will open an editor window and in this file we need to add.
+
+[source,shell]
+----
+spec:
+  ...
+  additionalPolicies:
+    node: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:SetDesiredCapacity",
+                "autoscaling:TerminateInstanceInAutoScalingGroup"
+          ],
+          "Resource": ["*"]
+        }
+      ]
+----
+
+This adds the permissions for the node to control the Amazon Autoscaling group
+that is associated with your cluster. After you close the session you'll need to
+`apply` it.
+
+[source,shell]
+----
+kops update cluster example.cluster.k8s.local --yes
+----
+
+Next we need to modify the cluster auto scaler manifest to use the proper
+values. First start by copying the
+`Lab9/templates/cluster-autoscaler-one-asg.yaml` into the root of the `Lab9`
+folder. Then open it in your editor of choice. Once opened on line #139 you will
+see the cluster autoscaler configuration.
+
+[source,shell]
+----
+...
+- --nodes=1:10:nodes.example.cluster.k8s.local
+...
+----
+
+This is stating that it will monitor the autoscaling group named
+`nodes.example.cluster.k8s.local` and will allow for a minimum of `1` with a
+maximum of `10` instances.
+
+Next we're going to make sure that we have the right `AWS_REGION` defined. To do
+so in that sam manifest file you will see that under the
+`.spec.template.spec.containers..env` key you will see `AWS_REGION` this
+currently is set to `us-west-1` change this to where ever your cluster is
+running.
+
+To deploy this we use standard `kubectl`.
+
+[source,shell]
+----
+kubectl apply -f Lab9/cluster-autoscaler-one-asg.yaml
+----
+
+Now that we have the cluster autoscaler running we can manually trigger the
+addition of new resources by trying to over schedule pods. To do this we're
+going to copy the `Lab9/hpa.yaml` file as `/Lab9/ca.yaml`. Then open this in
+your text editor.
+
+Under the `resources.requests` key we're going to update that to be a larger
+request.
+
+[source,shell]
+----
+resources:
+  requests:
+    memory: 512m
+    cpu: 512m
+----
+
+Then we'll add more `replicas`. To force this it happen you can set this to
+`20`, before we deploy we're going to open a new Terminal instance and get the
+output of the `kubectl get nodes -w` request.
+
+[source,shell]
+----
+kubectl get nodes -w
+----
+
+Then we'll go back to the original Terminal instance and `apply` the petstore
+application configs.
+
+[source,shell]
+----
+kubectl apply -f Lab9/ca.yaml
+----
+
+Now that we have this deployed in the window monitoring the `kubectl get nodes`
+call will see new instances get attached. This can take upto 5 minutes to see
+the new nodes if you'd like to view what the cluster autoscaler.
+
