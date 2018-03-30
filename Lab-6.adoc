@@ -2,6 +2,49 @@
 
 === Expected Outcome:
 
+- Explore monitoring and logging solutions
+
 === Lab Requirements:
 
+- Active Kubernetes cluster with access via kubectl
+
 === Average Lab Time:
+
+30 - 45 minutes
+
+=== The Lab
+
+==== Overview
+
+The Pet Store application is up and running in our Kubernetes cluster. We need to provide visibility on the performance and activity
+of the application running in various environments. In this lab we will discover different methods for gathering and exposing
+these metrics.
+
+===== Fork this repository
+
+===== Explore built-in tools
+
+- Open up port 4194 on security groups for master/node instances
+-- Navigate to http://<instance-public-ip>:4194/containers
+-- Discuss cAdvisor
+
+- Deploy the kubernetes dashboard:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+```
+- Open and explore the dashboard
+
+```
+http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default
+```
+
+===== Configure pipeline
+
+- Import Jenkinsfile (this is the pre-configured pipeline)
+- Update parameters specific to user specific environment (github repo, deployment endpoint, etc.)
+
+===== Deploy Application
+
+- Deploy a change to the application
+- View change in browser
