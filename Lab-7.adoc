@@ -2,6 +2,51 @@
 
 === Expected Outcome:
 
+- CI/CD concepts
+- Automate container build on code checkin
+- Perform testing - functional, unit, regression
+- Deploy to various environments - dev(local), staging, prod
+
 === Lab Requirements:
 
+- Git client installed
+- Github.com account
+- Text editor
+
 === Average Lab Time:
+
+30 - 45 minutes
+
+=== The Lab
+
+==== Overview
+
+Now that we have the Pet Store application containerized and leveraging k8s
+for deployment and application lifecycle management it is time to automate the
+deployment process. In this part of the workshop we will deploy a Jenkins container
+pre-configured and use it to deploy new versions of the Pet Store application. We will
+discover common CI/CD concepts and introduce testing and security functionality as part
+ of the deployment process.
+
+===== Fork this repository
+
+===== Deploy the Jenkins Instance
+
+|===
+
+|Region | Launch Template
+
+| *Oregon* (us-west-2)
+a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=jenkins-k8s-demo&templateURL=https://s3.amazonaws.com/jenkins-demo-public/aws-refarch-jenkins-containers.yaml]
+
+|===
+
+===== Configure pipeline
+
+===== Deploy Sample Application
+
+kubectl apply -f https://raw.githubusercontent.com/omarlari/aws-container-sample-app/master/deployment-hello.yaml
+
+
+- Deploy a change to the application
+- View change in browser
