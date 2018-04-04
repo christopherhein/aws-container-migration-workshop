@@ -1,2 +1,4 @@
 Lab2/Dockerfile
 Lab2/docker-compose.yml
+*.html
+.DS_Store
