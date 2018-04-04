@@ -2,15 +2,13 @@
 
 === Expected Outcome:
 
-- Explore monitoring and logging solutions
+. Explore monitoring and logging solutions
 
 === Lab Requirements:
 
-- Active Kubernetes cluster with access via kubectl
+. Kubernetes cluster
 
-=== Average Lab Time:
-
-30 - 45 minutes
+=== Average Lab Time: 30 - 45 minutes
 
 === The Lab
 
@@ -20,31 +18,39 @@ The Pet Store application is up and running in our Kubernetes cluster. We need t
 of the application running in various environments. In this lab we will discover different methods for gathering and exposing
 these metrics.
 
-===== Fork this repository
+===== Getting started
+. To get started, switch to the Lab6 folder within this repository
 
-===== Explore built-in tools
+===== Monitoring with cAdvisor and dashboard
 
-- Open up port 4194 on security groups for master/node instances
--- Navigate to http://<instance-public-ip>:4194/containers
--- Discuss cAdvisor
+Open up port 4194 on security groups for master/node instances
+and then navigate to:
 
-- Deploy the kubernetes dashboard:
+`http://<instance-public-ip>:4194/containers`
+
+This will display the cAdvisor dashboard which shows cpu, memory and file system metrics for this particular node.
+
+===== Deploy the kubernetes dashboard:
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 ```
-- Open and explore the dashboard
+
+Open and explore the dashboard
 
 ```
-http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default
+kubectl proxy
 ```
 
-===== Configure pipeline
+Navigate to:
 
-- Import Jenkinsfile (this is the pre-configured pipeline)
-- Update parameters specific to user specific environment (github repo, deployment endpoint, etc.)
+`http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=default`
 
-===== Deploy Application
+From the dashboard you will be able to see metrics that are rolled up from the entire cluster in one place. Browse around the explore the
+dashboard. Although most kubernetes users prefer to interact with a particular cluster, the dashboard offers a GUI from where
+you can manage your applications and infrastructure.
 
-- Deploy a change to the application
-- View change in browser
+Most users will deploy additional monitoring and logging tools, like Prometheus which is out of scope for this workshop but something
+you should explore for more detailed monitoring capabilities.
+
+===== Logging
