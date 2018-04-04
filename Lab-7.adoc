@@ -1,5 +1,10 @@
 = Container Adoption Lab - Module 7
 
+:toc:
+:icons:
+:linkattrs:
+:imagesdir: ../images
+
 === Expected Outcome:
 
 - CI/CD concepts

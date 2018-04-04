@@ -23,18 +23,14 @@ Please choose the region closest to you.
 
 |===
 
-|Region | Launch template with a new VPC | Launch template with an existing VPC
+|Region | Launch template in a new VPC
 | *N. Virginia* (us-east-1)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
-
 | *Ohio* (us-east-2)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
-
 | *Oregon* (us-west-2)
 a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-vpc.template]
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=k8s-workshop&templateURL=https://s3.amazonaws.com/aws-kubernetes-artifacts/lab-ide-novpc.template]
+
 
 |===
 
