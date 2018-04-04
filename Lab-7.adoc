@@ -33,19 +33,6 @@ pre-configured and use it to deploy new versions of the Pet Store application. W
 discover common CI/CD concepts and introduce testing and security functionality as part
  of the deployment process.
 
-===== Fork this repository
-
-===== Deploy the Jenkins Instance
-
-|===
-
-|Region | Launch Template
-
-| *Oregon* (us-west-2)
-a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=jenkins-k8s-demo&templateURL=https://s3.amazonaws.com/jenkins-demo-public/aws-refarch-jenkins-containers.yaml]
-
-|===
-
 ===== Configure pipeline
 
 ===== Deploy Sample Application
