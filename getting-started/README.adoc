@@ -1,4 +1,4 @@
-= Kubernetes - Setup Cloud9 Development Environment
+= Container Migration Workshop - setup AWS account
 :toc:
 :icons:
 :linkattrs:
@@ -6,15 +6,13 @@
 
 
 This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
+We will also deploy an RDS instance, ECR repository and a Jenkins instance for the CI/CD portion of the workshop.
 
 == Create AWS Cloud9 Environment
 === AWS Cloud9 Console
 
 We can create the Cloud9 development environment via CloudFormation.
 This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
-
-The CloudFormation template can create a new VPC, or you can choose an existing VPC if needed.
-If you are unsure, we recommend the "Launch template with an existing VPC" option.
 
 Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
 
