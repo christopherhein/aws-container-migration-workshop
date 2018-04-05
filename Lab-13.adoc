@@ -27,12 +27,24 @@ image::Lab13/DTD.png[DT,400,link="Lab13/DTD.png"]
 --
 
 ==== Full Set Application Deployment.
+*Description:* +
+In a Full Set Application deployment architecture each application is deployed into an environment together with all self-contained dependencies. These include storage, caching and computing. Each application exposes an endpoint that can be queried from the Hybrid environment. In some cases some of the application layers, like storage or databases can be asynchronously synced with mirrors in other environments.
+
+*Example:* +
+A critical hardware vulnerability has been exposed within the current running environment. The customer deploys the FSA using existing service and application definitions into the cloud environment before switching over their DNS records to the new Load Balancers.
+
 .Key considerations:
 * Low latency Dependencies
 * Low Throughput Availability
 * Few external dependencies
 
 ==== Dependency Transit Deployment.
+*Description:* +
+In a Dependency Transit Deployment, applications can be broken up and deployed into different environments and communicate with dependencies across the transit connection. The application layer can communicate back to the hybrid environment for dependencies that do not require high frequency.
+
+*Example:* +
+Analytics workloads using Machine Learning processing data stored on-prem.
+
 .Key considerations:
 * Asynchronous Workloads
 * Variable Inter-operable Caching layers
