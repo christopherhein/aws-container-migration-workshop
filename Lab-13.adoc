@@ -23,7 +23,7 @@ image::Lab13/FSA-Hybrid.png[FSA,400,link="Lab13/FSA-Hybrid.png"]
 
 [.left]
 .Dependency Transit Deployment
-image::Lab13/FSA-Hybrid.png[DT,400,link="Lab13/FSA-Hybrid.png"]
+image::Lab13/DTD.png[DT,400,link="Lab13/DTD.png"]
 --
 
 ==== Full Set Application Deployment.
@@ -32,8 +32,8 @@ image::Lab13/FSA-Hybrid.png[DT,400,link="Lab13/FSA-Hybrid.png"]
 * Low Throughput Availability
 * Few external dependencies
 
-==== Full Set Application Deployment.
+==== Dependency Transit Deployment.
 .Key considerations:
-* Low latency Dependencies
-* Low Throughput Availability
-* Few external dependencies
+* Asynchronous Workloads
+* Variable Inter-operable Caching layers
+* Unaffected by outage / latency
