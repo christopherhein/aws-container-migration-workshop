@@ -8,10 +8,6 @@ Mappings:
       CIDR: 10.0.0.0/16
     Public:
       CIDR: 10.0.0.0/24
-    RDS1:
-      CIDR: 10.0.1.0/24
-    RDS1:
-      CIDR: 10.0.2.0/24
 Conditions: {}
 Resources:
   VPC:

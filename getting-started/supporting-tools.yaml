@@ -1,0 +1,11 @@
+Description: This template deploys a CI/CD pipeline to deploy to a kubernetes cluster
+
+Parameters: {}
+
+Resources:
+
+  Repository:
+    Type: AWS::ECR::Repository
+    #DeletionPolicy: Retain
+
+Outputs: {}
