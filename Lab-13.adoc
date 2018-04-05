@@ -19,11 +19,11 @@ Deploying applications into a Hybrid environment requires many considerations. T
 --
 [.left]
 .Full Set Application (FSA) Deployment
-image::images/FSA-Hybrid.png[FSA,400,link="images/FSA-Hybrid.png"]
+image::FSA-Hybrid.png[FSA,400,link="FSA-Hybrid.png"]
 
 [.left]
 .Dependency Transit Deployment
-image::images/DTD.png[DT,400,link="images/DTD.png"]
+image::DTD.png[DT,400,link="DTD.png"]
 --
 
 ==== Full Set Application Deployment.
