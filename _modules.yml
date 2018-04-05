@@ -1,0 +1,41 @@
+config:
+  vars:
+    - name: MASTER
+      desc: Master Nodes
+      value: "http://sds"
+    - name: PARTNER_NAME
+      desc: Workshop Partner
+      value: "Default"
+
+modules:
+  Lab-1:
+    name: Application Discovery
+  Lab-2:
+    name: Containerize Application
+  Lab-3:
+    name: Migrate a Database
+  Lab-4:
+    name: Kubernetes Manifests
+  Lab-5:
+    name: ConfigMaps and Secrets
+  Lab-6:
+    name: Logging and Monitoring
+  Lab-7:
+    name: CI/CD Concepts
+  Lab-8:
+    name: Security Practices
+  Lab-9:
+    name: Scaling Workloads
+  Lab-10:
+    name: AWS Edge Services
+  Lab-11:
+    name: Decomposing Applications
+  Lab-12:
+    name: Other Workloads
+  Lab-13:
+    name: Hybrid Considerations
+    revisions:
+      workshop_rax:
+        vars:
+          PARTNER_NAME: "RackSpace"
+
