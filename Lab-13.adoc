@@ -1,7 +1,51 @@
 = Container Adoption Lab - Module 13
 
+== Hybrid Environment Considerations and Architectures
+
 === Expected Outcome:
+- Understand general architectural considerations for Hybrid Deployments.
 
 === Lab Requirements:
+None
 
 === Average Lab Time:
+10 Minutes.
+
+=== Introduction
+Deploying applications into a Hybrid environment requires many considerations. These include primarily latency, connection stability and connection throughput between each environment. Depending on these factors, a decision can be made regarding the specific deployment strategy for each application. We have identified
+
+=== Hybrid Deployment Strategies
+[.float-group]
+--
+[.left]
+.Full Set Application (FSA) Deployment
+image::images/FSA-Hybrid.png[FSA,400,link="images/FSA-Hybrid.png"]
+
+[.left]
+.Dependency Transit Deployment
+image::images/DTD.png[DT,400,link="images/DTD.png"]
+--
+
+==== Full Set Application Deployment.
+*Description:* +
+In a Full Set Application deployment architecture each application is deployed into an environment together with all self-contained dependencies. These include storage, caching and computing. Each application exposes an endpoint that can be queried from the Hybrid environment. In some cases some of the application layers, like storage or databases can be asynchronously synced with mirrors in other environments.
+
+*Example:* +
+A critical hardware vulnerability has been exposed within the current running environment. The customer deploys the FSA using existing service and application definitions into the cloud environment before switching over their DNS records to the new Load Balancers.
+
+.Key considerations:
+* Low latency Dependencies
+* Low Throughput Availability
+* Few external dependencies
+
+==== Dependency Transit Deployment.
+*Description:* +
+In a Dependency Transit Deployment, applications can be broken up and deployed into different environments and communicate with dependencies across the transit connection. The application layer can communicate back to the hybrid environment for dependencies that do not require high frequency.
+
+*Example:* +
+Analytics workloads using Machine Learning processing data stored on-prem.
+
+.Key considerations:
+* Asynchronous Workloads
+* Variable Inter-operable Caching layers
+* Unaffected by outage / latency
