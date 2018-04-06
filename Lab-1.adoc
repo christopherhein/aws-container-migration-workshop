@@ -1,7 +1,112 @@
 = Container Adoption Lab - Module 1
 
+== Application Discovery
+
 === Expected Outcome:
 
+- Understand general application portfolio discovery when migrating workloads.
+- What is specific about application discovery and migrating to containers.
+- Brief introduction into tools that can assist in dissecting an application.
+
 === Lab Requirements:
+None
 
 === Average Lab Time:
+10 Minutes.
+
+=== Introduction
+Any cloud migration should go through five phases - Evaluation, Planning, Design,
+Migration and Optimization. Portfolio Discovery refers to a process that 
+generates IT inventory data about applications, servers, network devices, and 
+storage which are deployed in a customer's environment. Typically, this
+process is done with a tool and the goals of Portfolio Discovery are:
+
+1. Create an inventory of the source environment at the application level.
+2. Understand the applications utilization metrics.
+3. Get a clear map of the dependent systems or services for a given application.
+4. Use this information to start a migration plan.
+5. Project migration and post-migration costs in AWS.
+
+=== Discovery Analysis - What to Look For
+ 
+From the vast amount of portfolio data collected, there are key pieces of information
+extracted that are the basis of what you need to form a migration plan. For example,
+dependencies can be considered one of the most important pieces. They help determine
+application and server dependencies but also help identify access patterns. Performance
+metrics is another factor to help right size resources when migrating to the cloud. 
+Other areas are service naming conventions, tags and other host metadata to help
+identify patterns and group servers into applications for migration.
+
+[.float-group]
+--
+[.left]
+.Discovery Characteristics
+image::Discovery.png[Disc,400,link="Discovery.png"]
+--
+
+=== Application Discovery and Containerization
+
+When looking at an application footprint during the discovery process you can break it into a couple of categories
+in terms of ease of migrating to containers. They are:
+
+|====================================================================================================================================================
+|                | *Easy*                               | *Moderate*                                           | *Difficult*                            
+| *Code*         | Completely Isolated (single process) | Somewhat isolated (multiple processes)               | Self-Modifying (e.g. Actor Model)    
+| *Configuration*| One Configuration File               | Several Configuration Files                          | Configuration Anywhere in Filesystem 
+| *Data*         | Data Saved in Single Place           | Data Saved in Several Places                         | Data Anywhere in Filesystem          
+| *Secrets*      | Static Files                         | Network                                              | Dynamic Generation of Certificates   
+| *Network*      | HTTP, HTTPS                          | TCP, UDP                                             | IPSEC, Highly Isolated               
+| *Installation* | Packages, Source                     | Installers (install.sh) and Understood Configuration | Installers (install.sh)              
+| *Licensing*    | Open Source                          | Proprietary                                          | Restrictive & Proprietary            
+|====================================================================================================================================================
+
+While not called out above, dependencies are critical when performing application discovery in all
+phases of a migration but they are especially important when it comes to deciding to break out an
+application to microservices. Identifying all external resources and dependencies along with the 
+metrics associated are a critical component of your migration.
+
+=== What or Where to Break Out
+
+A common approach is to just try and refactor everything. While this works well it can be time consuming.
+It also assumes that you know the application well and have the time to do the work. It can be more
+beneficial to try and break the application into small services or in chunks. By creating a service diagram
+and getting the metrics around the interactions are a way to look for opportunities to break into services. 
+
+To Do: Insert Diagram of Pet Store - Ideally from APM tool like Dynatrace
+
+=== What Tools to Use
+
+There are a mix of tools in the market that perform Portfolio discovery. Some tools work by scanning the 
+network or targeting a series of hosts and logging in via ssh, wmi or snmp. Others are agent-based and need
+to be installed on each machine within an application footprint to collect metrics.
+
+=== Discovery Tools 
+
+The tools below are typically used during the Portfolio Discovery process. What is important to note here is 
+that none of the tools in this space will give you the deep understanding about the underlying components of
+an application. While they do a great job of discovering cpu, memory, network, disk and dependencies, they don't
+go deep in areas like installed packages and versions or visualizing if a dependency is tightly coupled along
+with the metrics around it (e.g. response time visualization).
+
+https://aws.amazon.com/application-discovery/[^]
+
+https://aws.amazon.com/migration/partner-solutions/#discovery-planning[^]
+
+=== Profiling Tools (APM)
+
+The tools below are traditionally thought of as a post migration tool but can be leveraged as part of the
+dissection of an application. They have the ability to bubble up process level information and can go deeper
+into the application stack to get a true representation of what the application is doing under the covers.
+
+https://aws.amazon.com/migration/partner-solutions/#profiling[^]
+
+=== Conclusion
+
+Regardless of the tools used, it is important to note that recording the metrics and response times are 
+required during the application discovery process because that information is used in the post migration phase
+as a baseline comparison. The goal is to ensure that key areas like performance, stability and resource
+consumption don't deteriorate as part of the migration. This information will also be used as part of your test
+plans when it comes time to test the scaling of the services that have been migrated. 
+
+
+
