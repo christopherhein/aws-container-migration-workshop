@@ -41,7 +41,7 @@ identify patterns and group servers into applications for migration.
 --
 [.left]
 .Discovery Characteristics
-image::Discovery.png[Disc,400,link="Discovery.png"]
+image::Discovery.png[Disc,400,link="images/Discovery.png"]
 --
 
 === Application Discovery and Containerization
