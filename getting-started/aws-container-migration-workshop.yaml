@@ -12,17 +12,11 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/aws-container-migration-workshop/cloud9.yaml
-      
+
   SupportingTools:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: https://s3.amazonaws.com/aws-container-migration-workshop/supporting-tools.yaml
-      Parameters: {}
-
-  JenkinsVPC:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/jenkins-demo-public/vpc.yaml
       Parameters: {}
 
   Jenkins:
@@ -31,5 +25,5 @@ Resources:
       TemplateURL: https://s3.amazonaws.com/jenkins-demo-public/jenkins.yaml
       Parameters:
         KeyName: !Ref KeyName
-        Subnet: !GetAtt JenkinsVPC.Outputs.Subnet
-        Vpc: !GetAtt JenkinsVPC.Outputs.VpcId
+        Subnet: !GetAtt Cloud9.Outputs.Subnet1
+        Vpc: !GetAtt Cloud9.Outputs.VpcId

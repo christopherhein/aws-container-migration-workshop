@@ -67,7 +67,14 @@ One last step is required so that the Cloud9 IDE uses the assigned IAM Instance 
 
 image:cloud9-disable-temp-credentials.png[]
 
-You are now ready to continue on with the workshop!
+==== Create kops cluster
+
+'''
+kops create cluster \
+  --name example.cluster.k8s.local \
+  --zones $AWS_AVAILABILITY_ZONES \
+  --yes
+'''
 
 == Workshop Cleanup
 

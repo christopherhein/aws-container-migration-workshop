@@ -8,6 +8,8 @@ Mappings:
       CIDR: 10.0.0.0/16
     Public:
       CIDR: 10.0.0.0/24
+    Public2:
+      CIDR: 10.0.1.0/24
 Conditions: {}
 Resources:
   VPC:
@@ -26,6 +28,16 @@ Resources:
     Properties:
       VpcId: !Ref 'VPC'
       CidrBlock: !FindInMap [SubnetConfig, Public, CIDR]
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'VPC'
+      CidrBlock: !FindInMap [SubnetConfig, Public2, CIDR]
       Tags:
         - Key: Application
           Value: !Ref 'AWS::StackName'
@@ -64,6 +76,11 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref 'PublicSubnet'
+      RouteTableId: !Ref 'PublicRouteTable'
+  PublicSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnet2'
       RouteTableId: !Ref 'PublicRouteTable'
   PublicNetworkAcl:
     Type: AWS::EC2::NetworkAcl
@@ -114,6 +131,11 @@ Resources:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
       SubnetId: !Ref 'PublicSubnet'
+      NetworkAclId: !Ref 'PublicNetworkAcl'
+  PublicSubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref 'PublicSubnet2'
       NetworkAclId: !Ref 'PublicNetworkAcl'
   LabIDE:
     Description: '-'
@@ -263,3 +285,9 @@ Outputs:
   Cloud9IDE:
     Value: !Join ['', ['https://', !Ref 'AWS::Region', .console.aws.amazon.com/cloud9/ide/,
         !Ref 'LabIDE', '?region=', !Ref 'AWS::Region']]
+  Subnet1:
+    Value: !Ref PublicSubnet
+  Subnet2:
+    Value: !Ref PublicSubnet2
+  VpcId:
+    Value: !Ref VPC

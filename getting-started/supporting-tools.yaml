@@ -7,5 +7,22 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     #DeletionPolicy: Retain
+  DBSecurityGroup:
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      GroupDescription: Ingress for CIDRIP
+      DBSecurityGroupIngress:
+        CIDRIP: "0.0.0.0/0"
+  MyDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBSecurityGroups:
+      - Ref: DBSecurityGroup
+      AllocatedStorage: '5'
+      DBInstanceClass: db.t2.small
+      Engine: postgres
+      MasterUsername: petstore
+      MasterUserPassword: petstore
+
 
 Outputs: {}
