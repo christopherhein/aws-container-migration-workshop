@@ -2,13 +2,12 @@ node {
 
    stage ('Checkout'){
        git 'https://github.com/omarlari/aws-container-migration-workshop.git'
-       dir ('./aws-workshop/Lab2'){
-          sh 'pwd'
-       }
    }
 
    stage ('Build Dockerfile'){
-      docker.build("my-image:${env.BUILD_ID}", "-f ./Dockerfile.build .")
+      sh 'cd /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab2'
+      sh 'pwd'
+      sh 'docker build -t my-image:latest -f Dockerfile.build .'
    }
 }
    /*stage 'Push to ECR'
