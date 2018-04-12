@@ -2,6 +2,7 @@ pipeline {
     agent none
     stages {
 
+        agent {node}
         stage ('Checkout'){
             steps {
                git 'https://github.com/omarlari/aws-container-migration-workshop.git'
