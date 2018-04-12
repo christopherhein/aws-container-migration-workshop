@@ -6,9 +6,9 @@ node {
 
 
    stage ('Build Dockerfile'){
-      docker.build('build', --file /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7/Dockerfile.build)
+      docker.build('build', '--file /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7/Dockerfile.build')
    }
-
+}
    /*stage 'Push to ECR'
    sh ("eval \$(docker run awscli aws ecr get-login --region ${REGION} --no-include-email | sed 's|https://||')")
    docker.withRegistry('https://${ECR_REPO}') {
