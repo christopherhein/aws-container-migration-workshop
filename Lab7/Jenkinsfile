@@ -6,12 +6,8 @@ node {
 
 
    stage ('Build Dockerfile'){
-      dockerfile{
-        filename 'Dockerfile.build'
-        dir '/home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7'
-      }
+      docker.build('build', --file /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7/Dockerfile.build)
    }
-}
 
    /*stage 'Push to ECR'
    sh ("eval \$(docker run awscli aws ecr get-login --region ${REGION} --no-include-email | sed 's|https://||')")
