@@ -6,7 +6,7 @@ node {
 
 
    stage ('Build Dockerfile'){
-      docker.build('build', '--file /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7/Dockerfile.build')
+      docker.build('build', '-f Dockerfile.build /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7/')
    }
 }
    /*stage 'Push to ECR'
