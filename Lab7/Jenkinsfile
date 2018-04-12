@@ -5,7 +5,7 @@ node {
    }
 
    stage ('Build Dockerfile'){
-      sh 'cd /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab2'
+      sh 'cd aws-workshop/Lab2'
       sh 'pwd'
       sh 'docker build -t my-image:latest -f Dockerfile.build .'
    }
