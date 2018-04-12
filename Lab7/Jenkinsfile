@@ -2,6 +2,9 @@ node {
 
    stage ('Checkout'){
        git 'https://github.com/omarlari/aws-container-migration-workshop.git'
+       dir ('./aws-workshop/Lab2'){
+          sh 'pwd'
+       }
    }
 
    stage ('Build Dockerfile'){
