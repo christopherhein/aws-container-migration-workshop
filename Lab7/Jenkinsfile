@@ -1,9 +1,26 @@
 node {
 
    stage 'Checkout'
-   git 'https://github.com/omarlari/aws-container-sample-app.git'
+   git 'https://github.com/omarlari/aws-container-migration-workshop.git'
 
-   stage 'Build Dockerfile'
+   agent {
+      docker {
+         image: 'maven:3.5-jdk-7'
+         args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'
+      }
+   }
+   stages: {
+      stage('Build'){
+         dockerfile{
+            filename 'Dockerfile.build'
+            dir '/workshop/Lab7'
+         }
+      }
+   }
+
+
+
+   /*stage 'Build Dockerfile'
    docker.build('hello')
 
    stage 'Push to ECR'
@@ -22,5 +39,5 @@ node {
             sh 'kubectl describe deployment ${APP}'
             }
         }}
-   )
+   )*/
 }
