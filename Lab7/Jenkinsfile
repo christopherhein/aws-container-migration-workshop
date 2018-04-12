@@ -4,16 +4,15 @@ pipeline {
 
         stage ('Checkout'){
             steps {
-               git 'https://github.com/omarlari/aws-container-migration-workshop.git'    
+               git 'https://github.com/omarlari/aws-container-migration-workshop.git'
             }
 
         }
-
-
+        
         stage('Example Build') {
             agent {
                docker {
-                  image: 'maven:3.5-jdk-7'
+                  image 'maven:3.5-jdk-7'
                   args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'
                }
             }
