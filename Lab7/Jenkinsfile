@@ -1,30 +1,11 @@
-   /*stage 'Build Dockerfile'
-   docker.build('hello')
-
-   stage 'Push to ECR'
-   sh ("eval \$(docker run awscli aws ecr get-login --region ${REGION} --no-include-email | sed 's|https://||')")
-   docker.withRegistry('https://${ECR_REPO}') {
-       docker.image('hello').push('${BUILD_NUMBER}')
-   }
-
-   stage 'update application'
-
-   parallel(
-        kubernetes: { node {
-        docker.image('kubectl').inside("--volume=/home/ec2-user/.kube:/config/.kube"){
-            sh 'kubectl describe deployment ${APP}'
-            sh 'kubectl set image deployment/${APP} movies=${ECR_REPO}/hello:${BUILD_NUMBER}'
-            sh 'kubectl describe deployment ${APP}'
-            }
-        }}
-   )*/
-
 pipeline {
     agent none
     stages {
 
-        stage 'Checkout'
-        git 'https://github.com/omarlari/aws-container-migration-workshop.git'
+        stage ('Checkout'){
+            git 'https://github.com/omarlari/aws-container-migration-workshop.git'
+        }
+
 
         stage('Example Build') {
             agent {
