@@ -8,14 +8,9 @@ pipeline {
             }
 
         }
-        
+
         stage('Example Build') {
-            agent {
-               docker {
-                  image 'maven:3.5-jdk-7'
-                  args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'
-               }
-            }
+            agent {docker image 'maven:3.5-jdk-7' args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'}
             steps {
                 echo 'Hello, Maven'
                 sh 'mvn --version'
