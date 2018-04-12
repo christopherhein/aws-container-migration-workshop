@@ -20,6 +20,8 @@ node {
 
 
 
+
+
    /*stage 'Build Dockerfile'
    docker.build('hello')
 
@@ -40,4 +42,34 @@ node {
             }
         }}
    )*/
+}
+
+pipeline {
+    agent none
+    stages {
+
+        stage 'Checkout'
+        git 'https://github.com/omarlari/aws-container-migration-workshop.git'
+
+        stage('Example Build') {
+            agent {
+               docker {
+                  image: 'maven:3.5-jdk-7'
+                  args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'
+               }
+            }
+            steps {
+                echo 'Hello, Maven'
+                sh 'mvn --version'
+                sh 'mkdir -p /usr/src/app'
+                sh 'cp /workshop/app/pom.xml /usr/src/app/'
+                sh 'cd /usr/src/app'
+                sh 'mvn dependency:go-offline'
+                sh 'cp -R /workshop/app /usr/src/app'
+                sh 'mvn package -Dmaven.test.skip=true'
+                sh 'cp /usr/src/app/target/applicationPetstore.war'
+            }
+        }
+
+    }
 }
