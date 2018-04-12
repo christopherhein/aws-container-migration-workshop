@@ -1,0 +1,16 @@
+FROM maven:3.5-jdk-7
+
+# set the working directory
+WORKDIR /usr/src/app
+
+# copy just the pom.xml
+COPY /workshop/app/pom.xml /usr/src/app/pom.xml
+
+# just install the dependencies for caching
+RUN mvn dependency:go-offline
+
+# copy the application code
+COPY /workshop/app /usr/src/app
+
+# package the application
+RUN mvn package -Dmaven.test.skip=true
