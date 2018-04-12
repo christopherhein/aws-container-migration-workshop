@@ -10,7 +10,7 @@ COPY ./app/pom.xml /usr/src/app/pom.xml
 RUN mvn dependency:go-offline
 
 # copy the application code
-# COPY ./app/ /usr/src/app
+COPY ./app/ /usr/src/app
 
 # package the application
-# RUN mvn package -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip=true

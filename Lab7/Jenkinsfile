@@ -5,11 +5,9 @@ node {
    }
 
    stage ('Build Dockerfile'){
-      sh 'pwd'
       dir ('Lab2'){
-        sh 'pwd'
         def dockerfile = 'Dockerfile.build'
-        docker.build("my-image:${env.BUILD_ID}", "-f ./${dockerfile} .")   
+        docker.build("my-image:${env.BUILD_ID}", "-f ./${dockerfile} .")
       }
 
 
