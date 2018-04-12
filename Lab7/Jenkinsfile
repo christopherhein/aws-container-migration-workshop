@@ -3,7 +3,10 @@ pipeline {
     stages {
 
         stage ('Checkout'){
-            git 'https://github.com/omarlari/aws-container-migration-workshop.git'
+            steps {
+               git 'https://github.com/omarlari/aws-container-migration-workshop.git'    
+            }
+
         }
 
 
