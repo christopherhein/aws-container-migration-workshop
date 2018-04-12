@@ -6,7 +6,7 @@ node {
 
    stage ('Build Dockerfile'){
       def dockerfile = 'Dockerfile.build'
-      docker.build("my-image:${env.BUILD_ID}", "-f ${dockerfile} ./Lab2")
+      docker.build("my-image:${env.BUILD_ID}", "-f ./Lab2/${dockerfile}")
 
    }
 }
