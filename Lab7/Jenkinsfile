@@ -1,30 +1,46 @@
-pipeline {
-    agent none
-    stages {
+node {
 
+   stage 'Checkout'
+   git 'https://github.com/omarlari/aws-container-migration-workshop.git'
 
-        stage ('Checkout'){
-            agent { node { label 'labelName' } }
-            steps {
-               git 'https://github.com/omarlari/aws-container-migration-workshop.git'
-            }
+   stage 'Build Dockerfile'
+   dockerfile{
+      filename 'Dockerfile.build'
+      dir '/home/ec2-user/jenkins-data/workspace/aws-workshop/Lab7'
+   }
 
+   /*stage 'Push to ECR'
+   sh ("eval \$(docker run awscli aws ecr get-login --region ${REGION} --no-include-email | sed 's|https://||')")
+   docker.withRegistry('https://${ECR_REPO}') {
+       docker.image('hello').push('${BUILD_NUMBER}')
+   }
+
+   stage 'update application'
+
+   parallel(
+        ecs: {node {
+        docker.image('awscli').inside{
+            git 'https://github.com/omarlari/aws-container-sample-app.git'
+            sh 'sed -i s/REPO/${ECR_REPO}/g task-definition-hello.json'
+            sh 'sed -i s/BUILD/${BUILD_NUMBER}/g task-definition-hello.json'
+            sh 'aws ecs register-task-definition --cli-input-json file://task-definition-hello.json --family ${APP} --region ${REGION}'
         }
-
-        stage('Example Build') {
-            agent {docker 'maven:3.5-jdk-7 -v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'}
-            steps {
-                echo 'Hello, Maven'
-                sh 'mvn --version'
-                sh 'mkdir -p /usr/src/app'
-                sh 'cp /workshop/app/pom.xml /usr/src/app/'
-                sh 'cd /usr/src/app'
-                sh 'mvn dependency:go-offline'
-                sh 'cp -R /workshop/app /usr/src/app'
-                sh 'mvn package -Dmaven.test.skip=true'
-                sh 'cp /usr/src/app/target/applicationPetstore.war'
+        }},
+        kubernetes: { node {
+        docker.image('kubectl').inside("--volume=/home/ec2-user/.kube:/config/.kube"){
+            sh 'kubectl describe deployment ${APP}'
+            sh 'kubectl set image deployment/${APP} movies=${ECR_REPO}/hello:${BUILD_NUMBER}'
+            sh 'kubectl describe deployment ${APP}'
             }
-        }
+        }},
+        swarm: { node {
+            sh "echo deploying to swarm"
+        }}
+   )
 
-    }
+
+   stage 'update ECS service'
+   docker.image('awscli').inside{
+       sh 'aws ecs update-service --cluster ${ECS_CLUSTER} --service ${APP} --task-definition ${APP} --region ${REGION}'
+   }*/
 }
