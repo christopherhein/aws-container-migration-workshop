@@ -8,7 +8,7 @@ node {
    }
 
    stage ('Build Dockerfile'){
-      docker.build("my-image:${env.BUILD_ID}", "-f ./Dockerfile.build")
+      docker.build("my-image:${env.BUILD_ID}", "-f ./Dockerfile.build .")
    }
 }
    /*stage 'Push to ECR'
