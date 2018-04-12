@@ -1,27 +1,3 @@
-node {
-
-   stage 'Checkout'
-   git 'https://github.com/omarlari/aws-container-migration-workshop.git'
-
-   agent {
-      docker {
-         image: 'maven:3.5-jdk-7'
-         args '-v /home/ec2-user/jenkins-data/workspace/aws-workshop:/workshop'
-      }
-   }
-   stages: {
-      stage('Build'){
-         dockerfile{
-            filename 'Dockerfile.build'
-            dir '/workshop/Lab7'
-         }
-      }
-   }
-
-
-
-
-
    /*stage 'Build Dockerfile'
    docker.build('hello')
 
@@ -42,7 +18,6 @@ node {
             }
         }}
    )*/
-}
 
 pipeline {
     agent none
