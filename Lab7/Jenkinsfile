@@ -6,7 +6,7 @@ node {
 
 
    stage ('Build Dockerfile'){
-      docker.build('build', '-f Dockerfile.build')
+      docker.build('build', '-f Dockerfile.build .')
    }
 }
    /*stage 'Push to ECR'
