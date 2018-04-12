@@ -7,10 +7,10 @@ WORKDIR /usr/src/app
 COPY ./app/pom.xml /usr/src/app/pom.xml
 
 # just install the dependencies for caching
-# RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline
 
 # copy the application code
-# COPY /home/ec2-user/jenkins-data/workspace/aws-workshop/Lab2/app/ /usr/src/app
+COPY ./app/ /usr/src/app
 
 # package the application
-# RUN mvn package -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip=true
