@@ -7,14 +7,15 @@ node {
    stage ('Build Dockerfile'){
       dir ('Lab2'){
         def dockerfile = 'Dockerfile.final'
-        docker.build("petstore:${env.BUILD_ID}", "-f ./${dockerfile} .")
+        def image = docker.build("petstore:${env.BUILD_ID}", "-f ./${dockerfile} .")
       }
    }
 
    stage ('Push to ECR'){
       sh ("eval \$(docker run awscli aws ecr get-login --region us-west-2 --no-include-email | sed 's|https://||')")
       docker.withRegistry('https://${ECR_REPO}') {
-         docker.image('petstore').push('${env.BUILD_ID}')
+         //docker.image('petstore').push('${env.BUILD_ID}')
+         image.push()
       }
    }
 
