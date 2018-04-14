@@ -14,7 +14,7 @@ node {
    stage ('Push to ECR'){
       sh ("eval \$(docker run awscli aws ecr get-login --region us-west-2 --no-include-email | sed 's|https://||')")
       docker.withRegistry("https://${ECR_REPO}") {
-         docker.image("petstore").push("${env.BUILD_NUMBER}")
+         docker.image("petstore:${env.BUILD_NUMBER}").push()
       }
    }
 
