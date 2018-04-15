@@ -69,12 +69,35 @@ image:cloud9-disable-temp-credentials.png[]
 
 ==== Create kops cluster
 
-'''
-kops create cluster \
-  --name example.cluster.k8s.local \
-  --zones $AWS_AVAILABILITY_ZONES \
-  --yes
-'''
+
+    kops create cluster \
+      --name example.cluster.k8s.local \
+      --zones $AWS_AVAILABILITY_ZONES \
+      --yes
+
+==== Validate everything is working as intended
+
+We deployed a good amount of AWS resources and infrastructure, before moving on lets perform a few validation tests to assure everything is working as intended.
+
+. Validate connection to the postgres instance.
+Check the output from the main cloudformation stack and look for the "RDSEndpoint".
+
+Connect to your postgresql instance:
+
+    psql -h <RDSEndpoint> -U petstore -d postgres
+
+Create the petstore db
+
+    CREATE DATABASE petstore;
+
+. Verify connection to the Jenkins instance
+
+From the cloudformation output retrieve the Jenkins ip and open in a browser. The credentials are as follows:
+
+u: jenkins
+p: jenkins101
+
+
 
 == Workshop Cleanup
 
