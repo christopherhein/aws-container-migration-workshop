@@ -97,8 +97,6 @@ From the cloudformation output retrieve the Jenkins ip and open in a browser. Th
 u: jenkins
 p: jenkins101
 
-
-
 == Workshop Cleanup
 
 Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
