@@ -33,4 +33,4 @@ Outputs:
   RDSEndpoint:
     Value: !GetAtt RDSPostgres.Endpoint.Address
   ECRURL:
-    Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}
+    Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}
