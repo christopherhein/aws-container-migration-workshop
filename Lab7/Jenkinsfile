@@ -1,5 +1,4 @@
 node {
-   agent none
    stage ('Checkout'){
        git 'https://github.com/omarlari/aws-container-migration-workshop.git'
    }
