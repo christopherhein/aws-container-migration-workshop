@@ -19,7 +19,6 @@ node {
    }
 
    stage('Update Application'){
-      agent {
          docker {
             image: 'kubectl'
             args '--v=/home/ec2-user/.kube:/config/.kube'
@@ -28,6 +27,5 @@ node {
             sh "kubectl set image deployment/${APP} petstore=${ECR_REPO}/petstore:${BUILD_NUMBER}"
             sh "kubectl describe deployment ${APP}"
          }
-      }
    }
 }
