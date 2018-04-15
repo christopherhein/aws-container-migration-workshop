@@ -14,6 +14,14 @@ This section will demonstrate building a delivery pipeline that takes your code 
 
 == Setup
 
+=== Kubernetes secrets
+
+. Copy your kubeconfig, from your Cloud9 IDE copy the contents of:
+
+    cat ~/.kube/config
+
+. Create a file on your Jenkins instance with the contents of the above at `~/.kube/config`
+
 === Jenkins
 . From the main workshop cloudformation output section, look for your `JenkinsIP`, open this up in a browser and login:
 
