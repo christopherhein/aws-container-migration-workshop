@@ -1,4 +1,4 @@
-Description: This template deploys a CI/CD pipeline to deploy to a kubernetes cluster
+Description: This template deploys an ECR and RDS instance
 
 Parameters: {}
 
@@ -9,13 +9,15 @@ Resources:
     Properties:
       RepositoryName: petstore
     #DeletionPolicy: Retain
+
   DBSecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
     Properties:
       GroupDescription: Ingress for CIDRIP
       DBSecurityGroupIngress:
         CIDRIP: "0.0.0.0/0"
-  MyDB:
+
+  RDSPostgres:
     Type: AWS::RDS::DBInstance
     Properties:
       DBSecurityGroups:
@@ -28,6 +30,7 @@ Resources:
 
 
 Outputs:
-
+  RDSEndpoint:
+    Value: !GetAtt RDSPostgres.Endpoint.Address
   ECRURL:
     Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}

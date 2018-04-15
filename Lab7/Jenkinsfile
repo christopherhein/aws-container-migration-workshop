@@ -18,4 +18,16 @@ node {
       }
    }
 
+   stage 'update application'
+
+   parallel(
+        kubernetes: { node {
+        docker.image('kubectl').inside("--volume=/home/ec2-user/.kube:/config/.kube"){
+            sh "kubectl describe deployment ${APP}"
+            sh "kubectl set image deployment/${APP} movies=${ECR_REPO}/petstore:${BUILD_NUMBER}"
+            sh "kubectl describe deployment ${APP}"
+            }
+        }}
+   )
+
 }
