@@ -18,6 +18,7 @@ node {
    }
 
    stage('Update Application'){
-      sh ("eval \$(docker run -v /home/ec2-user/.kube:/config/.kube kubectl set image deployment/${APP} petstore=${ECR_REPO}/petstore:${BUILD_NUMBER})")
+      //sh ("eval \$(docker run -v /home/ec2-user/.kube:/config/.kube kubectl set image deployment/${APP} petstore=${ECR_REPO}/petstore:${BUILD_NUMBER})")
+      sh ("docker run -v /home/ec2-user/.kube:/config/.kube kubectl set image deployment/${APP} petstore=${ECR_REPO}/petstore:${BUILD_NUMBER}")
    }
 }
