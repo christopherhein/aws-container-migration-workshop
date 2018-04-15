@@ -6,6 +6,8 @@ Resources:
 
   Repository:
     Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: petstore
     #DeletionPolicy: Retain
   DBSecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
@@ -25,4 +27,7 @@ Resources:
       MasterUserPassword: petstore
 
 
-Outputs: {}
+Outputs:
+
+  ECRURL:
+    Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}

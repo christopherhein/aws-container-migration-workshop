@@ -27,3 +27,13 @@ Resources:
         KeyName: !Ref KeyName
         Subnet: !GetAtt Cloud9.Outputs.Subnet1
         Vpc: !GetAtt Cloud9.Outputs.VpcId
+
+Outputs:
+  Cloud9Endpoint:
+    Value: !GetAtt Cloud9.Outputs.Cloud9IDE
+  RDSEndpoint:
+    Value: !GetAtt SupportingTools.Outputs.RDSEndpoint
+  ECRRepo:
+    Value: !GetAtt SupportingTools.Outputs.ECRURL
+  JenkinsIP:
+    Value: !GetAtt Jenkins.Outputs.PublicIP
