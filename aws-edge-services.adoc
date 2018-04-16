@@ -106,7 +106,7 @@ additionalPolicies:
 ----
 
 For brevity we've downloaded the ingress controller manifest file into the
-`Lab10` Then we'll need to open the `alb-igress-controller.yaml` and modify the
+`aws-edge-services` Then we'll need to open the `alb-igress-controller.yaml` and modify the
 following parameters.
 
 [source,shell]
@@ -136,7 +136,7 @@ resources.
 Now that this is deployed we can modify our manifest file to add the proper
 annotation to create a ALB in AWS.
 
-Copy the `Lab10/templates/ingress.result.yaml` file. In this file we'll modify
+Copy the `aws-edge-services/templates/ingress.result.yaml` file. In this file we'll modify
 the subnets key and change this to be the subnets for your specific cluster.
 
 [source,shell]
@@ -149,7 +149,7 @@ access. After you have added your subnets deploy them by using `kubectl`.
 
 [source,shell]
 ----
-kubectl apply -f Lab10/templates/ingress.yaml
+kubectl apply -f aws-edge-services/templates/ingress.yaml
 ----
 
 Now that this has been deployed we can try to view it in the browser, first lets

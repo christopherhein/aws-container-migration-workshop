@@ -1,15 +1,35 @@
-= Container Migration Workshop - setup AWS account
-:toc:
+= Container Adoption Lab
 :icons:
 :linkattrs:
-:imagesdir: ../images
+:imagesdir: ./images
 
+== Getting Started
 
-This section walks you through the creating a Kubernetes development environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide you with a cloud-based integrated development environment (IDE) that will let you write, run, and debug containerized workloads using just a web browser.
-We will also deploy an RDS instance, ECR repository and a Jenkins instance for the CI/CD portion of the workshop.
+****
+*Expected Outcome:*
 
-== Create AWS Cloud9 Environment
-=== AWS Cloud9 Console
+* Setup Lab Environment
+
+*Lab Requirements:*
+
+* Browser
+* AWS Account
+
+*Average Lab Time:*
+15 Minutes
+****
+
+=== Introduction
+This section walks you through the creating a Kubernetes development
+environment using https://aws.amazon.com/cloud9/[AWS Cloud9].  This will provide
+you with a cloud-based integrated development environment (IDE) that will let
+you write, run, and debug containerized workloads using just a web browser.
+We will also deploy an RDS instance, ECR repository and a Jenkins instance for
+the CI/CD portion of the workshop.
+
+=== Create AWS Cloud9 Environment
+
+==== AWS Cloud9 Console
 
 We can create the Cloud9 development environment via CloudFormation.
 This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.

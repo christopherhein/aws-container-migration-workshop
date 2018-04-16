@@ -4,7 +4,7 @@ node {
    }
 
    stage ('Build Dockerfile'){
-      dir ('Lab2'){
+      dir ('containerize-application'){
         def dockerfile = 'Dockerfile.final'
         docker.build("petstore:${env.BUILD_NUMBER}", "-f ./${dockerfile} .")
       }

@@ -1,4 +1,7 @@
-= Container Adoption Lab - Module 1
+= Container Adoption Lab
+:icons:
+:linkattrs:
+:imagesdir: ./images
 
 == Application Discovery
 

@@ -73,7 +73,7 @@ role "system:pod-nanny" created
 rolebinding "heapster-binding" created
 ----
 
-Next `cd Lab9` in this directory create a new file called `hpa.yaml` in
+Next `cd scaling-workloads` in this directory create a new file called `hpa.yaml` in
 this `yaml` file copy over the last known `Deployment` of the petstore
 application. It should look something like this.
 
@@ -274,7 +274,8 @@ kops update cluster example.cluster.k8s.local --yes
 
 Next we need to modify the cluster auto scaler manifest to use the proper
 values. First start by copying the
-`Lab9/templates/cluster-autoscaler-one-asg.yaml` into the root of the `Lab9`
+`scaling-workloads/templates/cluster-autoscaler-one-asg.yaml` into the root of
+the `scaling-workloads`
 folder. Then open it in your editor of choice. Once opened on line #139 you will
 see the cluster autoscaler configuration.
 
@@ -299,12 +300,12 @@ To deploy this we use standard `kubectl`.
 
 [source,shell]
 ----
-kubectl apply -f Lab9/cluster-autoscaler-one-asg.yaml
+kubectl apply -f scaling-workloads/cluster-autoscaler-one-asg.yaml
 ----
 
 Now that we have the cluster autoscaler running we can manually trigger the
 addition of new resources by trying to over schedule pods. To do this we're
-going to copy the `Lab9/hpa.yaml` file as `/Lab9/ca.yaml`. Then open this in
+going to copy the `scaling-workloads/hpa.yaml` file as `scaling-workloads/ca.yaml`. Then open this in
 your text editor.
 
 Under the `resources.requests` key we're going to update that to be a larger
@@ -332,7 +333,7 @@ application configs.
 
 [source,shell]
 ----
-kubectl apply -f Lab9/ca.yaml
+kubectl apply -f scaling-workloads/ca.yaml
 ----
 
 Now that we have this deployed in the window monitoring the `kubectl get nodes`

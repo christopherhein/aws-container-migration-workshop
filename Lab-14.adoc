@@ -1,7 +1,0 @@
-= Container Adoption Lab - Module 14
-
-=== Expected Outcome:
-
-=== Lab Requirements:
-
-=== Average Lab Time:
