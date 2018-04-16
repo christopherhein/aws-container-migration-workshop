@@ -5,17 +5,19 @@
 
 == Application Discovery
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-- Understand general application portfolio discovery when migrating workloads.
-- What is specific about application discovery and migrating to containers.
-- Brief introduction into tools that can assist in dissecting an application.
+** Understand general application portfolio discovery when migrating workloads.
+** What is specific about application discovery and migrating to containers.
+** Brief introduction into tools that can assist in dissecting an application.
 
-=== Lab Requirements:
+*Lab Requirements:*
 None
 
-=== Average Lab Time:
+*Average Lab Time:*
 10 Minutes.
+****
 
 === Introduction
 Any cloud migration should go through five phases - Evaluation, Planning, Design,

@@ -1,23 +1,24 @@
-= Container Adoption Lab - Module 6
-:toc:
+= Container Adoption Lab
 :icons:
 :linkattrs:
 :imagesdir: ./images
 
-=== Expected Outcome:
+== Logging and Monitoring
 
-. Explore monitoring and logging solutions
+****
+*Expected Outcome:*
 
-=== Lab Requirements:
+* Explore monitoring and logging solutions
 
-. Kubernetes cluster
+*Lab Requirements:*
 
-=== Average Lab Time: 30 - 45 minutes
+* Kubernetes cluster
 
-=== The Lab
+*Average Lab Time:* 
+30 - 45 minutes
+****
 
-==== Overview
-
+=== Introduction
 The Pet Store application is up and running in our Kubernetes cluster. We need to provide visibility on the performance and activity
 of the application running in various environments. In this lab we will discover different methods for gathering and exposing
 these metrics.

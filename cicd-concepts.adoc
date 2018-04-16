@@ -5,27 +5,25 @@
 :linkattrs:
 :imagesdir: ../images
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-- CI/CD concepts
-- Automate container build on code checkin
-- Perform testing - functional, unit, regression
-- Deploy to various environments - dev(local), staging, prod
+* CI/CD concepts
+* Automate container build on code checkin
+* Perform testing - functional, unit, regression
+* Deploy to various environments - dev(local), staging, prod
 
-=== Lab Requirements:
+*Lab Requirements:*
 
-- Git client installed
-- Github.com account
-- Text editor
+* Git client installed
+* Github.com account
+* Text editor
 
-=== Average Lab Time:
-
+*Average Lab Time:*
 30 - 45 minutes
+****
 
-=== The Lab
-
-==== Overview
-
+=== Introduction
 Now that we have the Pet Store application containerized and leveraging k8s
 for deployment and application lifecycle management it is time to automate the
 deployment process. In this part of the workshop we will deploy a Jenkins container

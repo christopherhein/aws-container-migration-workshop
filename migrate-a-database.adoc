@@ -1,19 +1,24 @@
-= Container Adoption Lab - Module 3
+= Container Adoption Lab
+
 == Database and Storage approaches.
 
-=== Expected Outcome:
-. Launch an Amazon RDS Postgres Datababse.
-. Understand how to create local development data.
-. Migrate Data to RDS.
+****
+*Expected Outcome:*
 
-=== Lab Requirements:
-. Amazon Web Services CLI
-. Amazon Web Services Credentials
+* Launch an Amazon RDS Postgres Datababse.
+* Understand how to create local development data.
+* Migrate Data to RDS.
 
-=== Average Lab Time:
+*Lab Requirements:*
+
+* Amazon Web Services CLI
+* Amazon Web Services Credentials
+
+*Average Lab Time:*
 10 Minutes.
+****
 
-=== The Lab:
+=== Introduction
 In Lab 2 we introduced you to containers and how to deploy your application into containers using Docker-Compose. This included launching a container for hosting a PostgreSQL database that you can develop against when developing locally.
 
 This is a very important consideration that you need to make when using containers. Developing locally means that you need to have full parity between your local environment and the production environment. In order to achieve this you require a sample set of data that accurately represents your live environment.

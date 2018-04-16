@@ -1,15 +1,18 @@
-= Container Adoption Lab - Module 13
+= Container Adoption Lab
 
 == Hybrid Environment Considerations and Architectures
 
-=== Expected Outcome:
-- Understand general architectural considerations for Hybrid Deployments.
+****
+*Expected Outcome:*
 
-=== Lab Requirements:
+* Understand general architectural considerations for Hybrid Deployments.
+
+*Lab Requirements:*
 None
 
-=== Average Lab Time:
+*Average Lab Time:*
 10 Minutes.
+****
 
 === Introduction
 Deploying applications into a Hybrid environment requires many considerations. These include primarily latency, connection stability and connection throughput between each environment. Depending on these factors, a decision can be made regarding the specific deployment strategy for each application. We have identified

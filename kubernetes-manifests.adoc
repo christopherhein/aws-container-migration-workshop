@@ -2,22 +2,22 @@
 
 == Module 4
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-. Install the petstore application to your Kubernetes cluster
-. Show how the application is self healing
+* Install the petstore application to your Kubernetes cluster
+* Show how the application is self healing
 
-=== Lab Requirements:
+*Lab Requirements:*
 
-. Kubernetes cluster
-. AWS RDS Database
+* Kubernetes cluster
+* AWS RDS Database
 
-=== Average Lab Time: 20-30 minutes
+*Average Lab Time:* 
+20-30 minutes
+****
 
-=== The Lab
-
-==== Overview
-
+=== Introduction
 Just like you did in link:../Lab-2.adoc[Lab 2] where you created a
 docker-compose.yaml file to deploy your containerized application to Docker for
 X in this module we will create the necessary configurations to deploy the

@@ -4,20 +4,22 @@
 
 == Module 10
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-. Understand how Cloudfront can fit into Kubernetes
-. Understand how WAF can fit into Kubernetes
+* Understand how Cloudfront can fit into Kubernetes
+* Understand how WAF can fit into Kubernetes
 
-=== Lab Requirements:
+*Lab Requirements:*
+Nothing
 
-. Nothing
+*Average Lab Time:*
+25 minutes
+****
 
-=== Average Lab Time: 25 minutes
+=== Introduction
 
-==== Overview
-
-Within Kubernetes it has builtiin mechanism to allow you to work with the
+Within Kubernetes it has built-in mechanism to allow you to work with the
 underlaying Cloud Provider, this is managed by a component called the
 `cloud-controller-manager`. This allows you to boot and Amazon Elastic Load
 Balancer from a Kubernetes manifest byt specifying `type: LoadBalancer`. This
