@@ -51,6 +51,8 @@ Click on the job `aws-workshop` and to the left click on the `configure` link.
 
 Check the box labeled `GitHub Project` and then enter your GitHub URL in the `Project url` section.
 
+Then change the `Script Path` and set this to `cicd-concepts/Jenkinsfile`.
+
 Scroll down to the `parameters` section and enter your ECR respository name as the default value for the `ECR_REPO` parameter.
 
 Scroll down to the `Build Triggers` section and check the box labeled `GitHub hook trigger for GITScm polling`.
