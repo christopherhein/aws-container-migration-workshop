@@ -19,15 +19,16 @@ None
 === Introduction
 The Pet Store application is a Java 7 based application that runs on top of the Wildfly (JBoss) application server. The application is built using Maven. We will walk through the steps to build the application using a Maven container then deploying our WAR file to the Wildfly container. We will be using multi-stage builds to facilitate creating a minimal container.
 
-==== Building the Dockerfile
+=== Building the Dockerfile
 
-1. To get started, switch to the `containerize-application` folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
+To get started, switch to the `containerize-application` folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
 
-2. The first stage of our `Dockerfile` will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our `Dockerfile` will need to copy the code into the container, install the dependencies, then build the application using Maven.
+The first stage of our `Dockerfile` will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our `Dockerfile` will need to copy the code into the container, install the dependencies, then build the application using Maven.
 
-3. The second stage of our `Dockerfile` will be to build our Wildfly application server. We will need to copy the WAR file we created in the first stage to the second stage. The WAR file is built to `/usr/src/app/target/applicationPetstore.war` in the first stage. We will need to copy that WAR file to the `/opt/jboss/wildfly/standalone/deployments/applicationPetstore.war`. We will also need to copy the `standalone.xml` file to the proper location `/opt/jboss/wildfly/standalone/configuration/standalone.xml`. Wildfly will deploy that application on boot. You will also need to install the PostgreSQL driver which is already downloaded. Include the script below to install.
+The second stage of our `Dockerfile` will be to build our Wildfly application server. We will need to copy the WAR file we created in the first stage to the second stage. The WAR file is built to `/usr/src/app/target/applicationPetstore.war` in the first stage. We will need to copy that WAR file to the `/opt/jboss/wildfly/standalone/deployments/applicationPetstore.war`. We will also need to copy the `standalone.xml` file to the proper location `/opt/jboss/wildfly/standalone/configuration/standalone.xml`. Wildfly will deploy that application on boot. You will also need to install the PostgreSQL driver which is already downloaded. Include the script below to install.
 
-```Dockerfile
+[source,shell]
+----
 # install postgresql support
 RUN mkdir -p $JBOSS_HOME/modules/system/layers/base/org/postgresql/main
 COPY ./postgresql $JBOSS_HOME/modules/system/layers/base/org/postgresql/main
@@ -37,18 +38,20 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' \
   && $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown \
   && rm -rf $JBOSS_HOME/standalone/configuration/standalone_xml_history/ \
   && rm -rf $JBOSS_HOME/standalone/log/*
-```
+----
 
-==== Reviewing the Dockerfile
+=== Reviewing the Dockerfile
 Let's review the `Dockerfile` and walk through the result. The first stage will be based off our "tools" container, in this case that is maven. This container could be a container within your organization that houses all the tools your development team needs. We alias this first stage as the "build" stage.
 
-```Dockerfile
+[source,shell]
+----
 FROM maven:3.5-jdk-7 AS build
-```
+----
 
 Next we are going to install the dependencies. We do this ahead of time so that we can leverage the Docker build cache to increase the speed of build times. To accomplish this we copy the pom.xml and install the dependencies. We then copy our application code and build the applicaiton. This enables developers to iterate on their code without having to install dependencies each time.
 
-```Dockerfile
+[source,shell]
+----
 # set the working directory
 WORKDIR /usr/src/app
 
@@ -57,21 +60,23 @@ COPY ./app/pom.xml /usr/src/app/pom.xml
 
 # just install the dependencies for caching
 RUN mvn dependency:go-offline
-```
+----
 
 Finally, we build the application.
 
-```Dockerfile
+[source,shell]
+----
 # copy the application code
 COPY ./app /usr/src/app
 
 # package the application
 RUN mvn package -Dmaven.test.skip=true
-```
+----
 
 Next, in the same `Dockerfile` we create a new stage called "application." Then from the build stage, we copy the WAR file we compiled to the Wildfly deployments folder. Wildfly will deploy this WAR on boot. We then expose port 8080 for our application and port 9990 for Wildfly management. We then define the command to start the application.
 
-```Dockerfile
+[source,shell]
+----
 # create our Wildfly based application server
 FROM jboss/wildfly:11.0.0.Final AS application
 
@@ -97,32 +102,41 @@ EXPOSE 8080 9990
 # run the application
 ENTRYPOINT [ "/opt/jboss/wildfly/bin/standalone.sh" ]
 CMD [ "-b", "0.0.0.0", "-bmanagement", "0.0.0.0" ]
-```
+----
 
-==== Defining the Application
+Now that we have the `Dockerfile` written we can build this using the `docker build` subcommand.
+
+[source,shell]
+----
+docker build -t petstore:latest .
+---- 
+
+=== Defining the Application
 
 [IMPORTANT]
 Before you can run this in a Cloud9 environment you will need to install `docker-compose` by running the following commands.
 
 [source,shell]
 ----
-sudo curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` | sudo tee /usr/local/bin/docker-compose > /dev/null
-sudo chmod +x /usr/local/bin/docker-compose
+curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 ----
 
 Next, we need to define how our application will run. Docker comes with a tool called Docker Compose that allows you to orchestrate mutliple containers.
 
-1. Create a new file called `docker-compose.yml`. To start your file should look like this:
+Create a new file called `docker-compose.yml`. To start your file should look like this:
 
-```yaml
+[source,shell]
+----
 version: '3'
 
 services:
-```
+----
 
-2. Create the PostgreSQL service. The PostgreSQL service will run our database. We will use the official PostgreSQL image available from Docker Hub. Next, we will map the PostgreSQL port `5432` to the our machine port for easy access. Finally, we will define a few environment variables to configure our instance.
+Create the PostgreSQL service. The PostgreSQL service will run our database. We will use the official PostgreSQL image available from Docker Hub. Next, we will map the PostgreSQL port `5432` to the our machine port for easy access. Finally, we will define a few environment variables to configure our instance.
 
-```yaml
+[source,shell]
+----
 version: '3'
 
 services:
@@ -135,11 +149,12 @@ services:
       - 'POSTGRES_DB=petstore'
       - 'POSTGRES_USER=admin'
       - 'POSTGRES_PASSWORD=password'
-```
+----
 
-3. Finally, we will define our Pet Store application. Docker Compose supports building containers as well, so we will use a special syntax for defining this container. In our yaml file we will create a new service called `petstore` and configure our build configuration. Next, will add a `depends_on` config so that the `petstore` container boots after our `postgres` container. Similar to our `postgres` ports we will map port 8080 to our machine for easy access. Now we will use some environment variables to configure our database with the application.
+Finally, we will define our Pet Store application. Docker Compose supports building containers as well, so we will use a special syntax for defining this container. In our yaml file we will create a new service called `petstore` and configure our build configuration. Next, will add a `depends_on` config so that the `petstore` container boots after our `postgres` container. Similar to our `postgres` ports we will map port 8080 to our machine for easy access. Now we will use some environment variables to configure our database with the application.
 
-```yaml
+[source,shell]
+----
   petstore:
     build: ./
     depends_on:
@@ -153,11 +168,12 @@ services:
       - 'DB_NAME=petstore'
       - 'DB_USER=admin'
       - 'DB_PASS=password'
-```
+----
 
-4. Our final, file should look as follows.
+Our final, file should look as follows.
 
-```yaml
+[source,shell]
+----
 version: '3'
 
 services:
@@ -186,27 +202,29 @@ services:
       - 'DB_NAME=petstore'
       - 'DB_USER=admin'
       - 'DB_PASS=password'
-```
+----
 
-==== Running the Application
+=== Running the Application
 To run the application we will execute the following Docker Compose commands.
 
-1. Run the database container in the background (`-d` or daemon flag). We don't need the database logs to clog our application logs.
+Run the database container in the background (`-d` or daemon flag). We don't need the database logs to clog our application logs.
 
-```bash
+[source,shell]
+----
 docker-compose up -d postgres
-```
+----
 
-2. Build out petstore service.
+Build our petstore service.
 
-```bash
+[source,shell]
+----
 docker-compose build petstore
-```
+----
 
-3. Run the application container in the foreground and live stream the logs to stdout. If you hit an error hit `Ctrl+C`, make updates to the Dockerfile and re-build the container using step 2.
+Run the application container in the foreground and live stream the logs to stdout. If you hit an error hit `Ctrl+C`, make updates to the Dockerfile and re-build the container using step 2.
 
-```bash
+----
 docker-compose up petstore
-```
+----
 
-4. Visit http://localhost:8080/applicationPetstore to view the application.
+Last thing we need to do is click *Preview* in the Cloud9 toolbar this will open an embedded browser allowing you to navigate to the running application at port `8080` and path of `/applicationPetstore` 
