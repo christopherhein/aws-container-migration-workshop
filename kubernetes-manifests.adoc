@@ -158,13 +158,8 @@ the `kubectl` like so.
 kubectl port-forward $(kubectl get po -l app=petstore -o jsonpath="{.items[0].metadata.name}") 8080:8080
 ----
 
-This will forward the remote port to `localhost:8080` if you are on macOS you
-can view this by typing.
-
-[source,shell]
-----
-open http://localhost:8080/applicationPetstore
-----
+This will forward the remote port to `localhost:8080` then with Cloud9 we need to again use the *Preview* button
+to be able to then see the running application.
 
 At this point your application is running within Kubernetes but it's not able to
 handle requests, this is due to the service not being externally exposed. To do
@@ -314,12 +309,15 @@ parse it. and open.
 kubectl get svc -o wide
 ----
 
-Using the `kubectl` formatting:
+Using the `kubectl` formatting we can get the hostname by running 
 
 [source,shell]
 ----
-open http://$(kubectl get svc petstore -o jsonpath="{.status.loadBalancer.ingress..hostname}")/applicationPetstore
+kubectl get svc petstore -o jsonpath="{.status.loadBalancer.ingress..hostname}"
 ----
+
+Copy this output into a new tab and you will now see the application running in
+Kubernetes fronted by an Elastic Load Balancer.
 
 ==== Self Healing
 

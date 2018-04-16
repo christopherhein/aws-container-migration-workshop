@@ -16,7 +16,7 @@ COPY ./app /usr/src/app
 RUN mvn package -Dmaven.test.skip=true
 
 # create our Wildfly based application server
-FROM jboss/wildfly:11.0.0.Final
+FROM jboss/wildfly:11.0.0.Final AS application
 
 # install postgresql support
 RUN mkdir -p $JBOSS_HOME/modules/system/layers/base/org/postgresql/main
