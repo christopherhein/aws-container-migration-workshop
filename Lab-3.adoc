@@ -25,13 +25,14 @@ When migrating a Database you always have the option of three distinct migration
 . Homogeneous migration: Same database engine with service change (Metal to RDS)
 . Heterogeneous migration: Migrate to a managed or open-source engine (MySQL to Aurora)
 
-==== Creating a sample set:
+==== Creating a sample set
 For the purposes of this lab, the application already provides a simple set of sample data that gets provisioned by the application. We have already provisioned a PostgreSQL RDS Instance during the "Getting Started" portion of this lab on your behalf.
 
 ==== CI/CD Schema Changes
 When using containers, all schema changes or alterations need to be handled through an integrated manner without any manual interaction with the Database Schema.
 
-Every schema change needs to adhere to a “Non-Breaking Expansion" methodology"
+Every schema change needs to adhere to a “Non-Breaking Expansion" methodology":
+
 * Expose new version in a service interface
 * Support multiple versions in the consumer.
 
