@@ -10,8 +10,7 @@
 * Deploy the Pet Store application to a Wildfly based Application Server
 
 *Lab Requirements:*
-
-** link:https://docs.docker.com/docker-mac[Docker for Mac], link:https://docs.docker.com/docker-for-mac/install/[Docker for Windows], or https://docs.docker.com/install/linux/docker-ce/ubuntu/[Docker for Linux] depending on your Operating System
+None
 
 *Average Lab Time:* 
 30-45 minutes
@@ -101,6 +100,16 @@ CMD [ "-b", "0.0.0.0", "-bmanagement", "0.0.0.0" ]
 ```
 
 ==== Defining the Application
+
+[IMPORTANT]
+Before you can run this in a Cloud9 environment you will need to install `docker-compose` by running the following commands.
+
+[source,shell]
+----
+sudo curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` | sudo tee /usr/local/bin/docker-compose > /dev/null
+sudo chmod +x /usr/local/bin/docker-compose
+----
+
 Next, we need to define how our application will run. Docker comes with a tool called Docker Compose that allows you to orchestrate mutliple containers.
 
 1. Create a new file called `docker-compose.yml`. To start your file should look like this:
