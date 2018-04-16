@@ -1,7 +1,228 @@
-= Container Adoption Lab - Module 10
+= Container Adoption Lab 
+
+:imagesdir: ./images
+
+== Module 10
 
 === Expected Outcome:
 
+. Understand how Cloudfront can fit into Kubernetes
+. Understand how WAF can fit into Kubernetes
+
 === Lab Requirements:
 
-=== Average Lab Time:
+. Nothing
+
+=== Average Lab Time: 25 minutes
+
+==== Overview
+
+Within Kubernetes it has builtiin mechanism to allow you to work with the
+underlaying Cloud Provider, this is managed by a component called the
+`cloud-controller-manager`. This allows you to boot and Amazon Elastic Load
+Balancer from a Kubernetes manifest byt specifying `type: LoadBalancer`. This
+functionality allows you not have to manage your own load balancing software
+while also allowing you to get the benefits of the AWS scale.
+
+===== Cloudfront
+
+To extend this further to make your applications more resilient you can manually
+implement tools like Cloudfront to act as a transparent CDN for your
+traffic. Applications configured using this model will get the benefit of our
++110 edge locations for caching `get` requests and passing through `put`, `post`
+and `delete` requests.
+
+image::cloudfront.png[]
+
+If you are interested in setting this up you can do so via the AWS console by
+creating a Cloudfront distrobution and setting up yout applications ELB as the
+origin for the connection.
+
+In this module we won't require you to actually set this up but you can do so by
+following these steps.
+
+**Create Distribution**
+
+[source,shell]
+----
+aws cloudfront create-distribution \
+  --origin-domain-name $(kubectl get svc petstore -o jsonpath="{.status.loadBalancer.ingress..hostname}")
+----
+
+This default configuration will only allow `get` and `head` requests to be
+passed through the Cloudfront distribution. To update that to allow all HTTP
+methods you can go to
+link:https://console.aws.amazon.com/cloudfront/home[Cloudfront Console] and view
+the distribution it created. THen navigate to the `Behaviors` tab and `Edit` the
+origins settings. Selecting the radio button for `GET, HEAD, OPTIONS, PUT, POST,
+PATCH, DELETE`.
+
+image::cloudfront-distro.png[]
+
+Once this has finished deploying you will then be able to modify your Route53
+entries to point directly to the Cloudfront distribution and you will get the
+benefits of the full breadth of the AWS Point of Presence locations throughout
+the world.
+
+===== Web Application Firewall
+
+Just like the Cloudfront it can be you can also configure AWS WAF which will
+allow you to configure security rules such as SQL injection or XSS requests.
+This can be set up using either the Application Load Balancer (ALB) installation
+or if you've chosen to use Cloudfront to front your ELBs you can add it to that.
+
+**Application Load Balancer**
+
+Before you can use the ALB deployment you will need to deploy the
+link:https://github.com/coreos/alb-ingress-controller/[CoreOS ALB Ingress
+Controller] this will add the ALB as a primitive that is deployable from
+Kubernetes. To get up and running you'll first need to setup the permissions and
+install the ingress controller.
+
+To add the permissions use `kops edit cluster`.
+
+[source,shell]
+----
+additionalPolicies:
+  node: |
+    [
+      {
+        "Effect": "Allow",
+          "Action": [
+              "ec2:*"
+          ],
+          "Resource": [
+              "*"
+          ]
+      },
+      {
+        "Effect": "Allow",
+          "Action": [
+              "elasticloadbalancing:*"
+          ],
+          "Resource": "*"
+      }
+    ]
+----
+
+For brevity we've downloaded the ingress controller manifest file into the
+`Lab10` Then we'll need to open the `alb-igress-controller.yaml` and modify the
+following parameters.
+
+[source,shell]
+----
+- name: AWS_REGION
+  value: us-west-1
+- name: CLUSTER_NAME
+  value: container-workshop
+----
+
+These `.env` variables should be set to reflect the environment you are
+deploying into.
+
+Then we can deploy this and the other manifests to our cluster using `apply` 
+like we do for any other manifest file.
+
+[source,shell]
+----
+kubectl apply -f .
+----
+
+You'll notice that this created three other resources in your cluster a
+`clusterrole`, `clusterrolebinding`, and `serviceaccount`. These are used to
+allow the alb-ingress-controller to access the apiserver and listen for new
+resources. 
+
+Now that this is deployed we can modify our manifest file to add the proper
+annotation to create a ALB in AWS.
+
+Copy the `Lab10/templates/ingress.result.yaml` file. In this file we'll modify
+the subnets key and change this to be the subnets for your specific cluster.
+
+[source,shell]
+----
+alb.ingress.kubernetes.io/subnets: "subnet-04ca5ed128297ecb3, subnet-04fcfdae63c5e36ea"
+----
+
+Thes subnets must be internet facing to allow the ALB to have external network
+access. After you have added your subnets deploy them by using `kubectl`.
+
+[source,shell]
+----
+kubectl apply -f Lab10/templates/ingress.yaml
+----
+
+Now that this has been deployed we can try to view it in the browser, first lets
+get the ALB Hostname.
+
+[source,shell]
+----
+kubectl get ingress petstore -o jsonpath="{.status.loadBalancer.ingress..hostname}"
+----
+
+Once you have the hostname you can navigate to `/` like you would a ELB Classic
+from the `type: LoadBalancer` service.
+
+**WAF**
+
+With the ALB Ingress deployed and our service reconfigured as a NodePort we can
+now setup WAF to be used as a proxy. First we need to create the Web ACL using
+thr AWS CLI.
+
+[source,shell]
+----
+$ aws waf-regional create-web-acl --name petstore --metric-name petstore --default-action Type=BLOCK --change-token $(aws waf-regional get-change-token | jq -r ".ChangeToken")
+{
+    "WebACL": {
+        "DefaultAction": {
+            "Type": "BLOCK"
+        },
+        "Rules": [],
+        "MetricName": "petstore",
+        "WebACLId": "f625e1d8-d515-4550-9834-49b2d0e686c8",
+        "Name": "petstore"
+    },
+    "ChangeToken": "f093e1b0-0888-4c53-aba6-495a79e48590"
+}
+----
+
+Now we can associate the ACL with with our ALB. We first need to get the ALB
+name from the `ingress` resource events.
+
+[source,shell]
+----
+kubectl describe ingress/petstore
+----
+
+In the Events.Message Key you will see something like
+`containerwo-default-xxxxx-xxxx` copy this and use it to request the ARN from
+the `ec2` subcommand.
+
+[source,shell]
+----
+aws elbv2 describe-load-balancers --names containerwo-default-petsto-b070 | jq -r ".LoadBalancers[0].LoadBalancerArn"
+----
+
+With this ARN we can then associate the ALB with our WAF.
+
+[source,shell]
+----
+aws waf-regional associate-web-acl --resource-arn arn:aws:elasticloadbalancing:us-west-1:915347744415:loadbalancer/app/containerwo-default-petsto-b070/5bb11378e20370e4 --web-acl-id f625e1d8-d515-4550-9834-49b2d0e686c8
+----
+
+With the ALB Associated with the WAF that was created we can now try again to
+access the `/` endpoint. This time you will get a `403 Forbidden` showing you
+that the WAF is in place and blocking traffic from getting to the service.
+
+If you'd like to change the default settings to `ALLOW` all traffic as the
+default you can update the settings by sending and `update-web-acl` `aws`
+command.
+
+[source,shell]
+----
+aws waf-regional update-web-acl --web-acl-id f625e1d8-d515-4550-9834-49b2d0e686c8 --default-action Type=ALLOW --change-token $(aws waf-regional get-change-token | jq -r ".ChangeToken")
+----
+
+After making this request you can reload the ALB Hostname and the Wildfly
+landing page should reappear.
+

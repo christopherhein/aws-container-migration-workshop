@@ -1,7 +1,123 @@
 = Container Adoption Lab - Module 3
+== Database and Storage approaches.
 
 === Expected Outcome:
+. Launch an Amazon RDS Postgres Datababse.
+. Understand how to create local development data.
+. Migrate Data to RDS.
 
 === Lab Requirements:
+. Amazon Web Services CLI
+. Amazon Web Services Credentials
 
 === Average Lab Time:
+10 Minutes.
+
+=== The Lab:
+In Lab 2 we introduced you to containers and how to deploy your application into containers using Docker-Compose. This included launching a container for hosting a PostgreSQL database that you can develop against when developing locally.
+
+This is a very important consideration that you need to make when using containers. Developing locally means that you need to have full parity between your local environment and the production environment. In order to achieve this you require a sample set of data that accurately represents your live environment.
+
+=== Some Considerations
+When migrating a Database you always have the option of three distinct migration patterns. Lift & Shift, Homogeneous or Heterogeneous migrations.
+
+. Lift and shift: Move to AWS with as few changes as possible (Metal to VPS)
+. Homogeneous migration: Same database engine with service change (Metal to RDS)
+. Heterogeneous migration: Migrate to a managed or open-source engine (MySQL to Aurora)
+
+==== Creating a sample set
+For the purposes of this lab, the application already provides a simple set of sample data that gets provisioned by the application. We have already provisioned a PostgreSQL RDS Instance during the "Getting Started" portion of this lab on your behalf.
+
+==== CI/CD Schema Changes
+When using containers, all schema changes or alterations need to be handled through an integrated manner without any manual interaction with the Database Schema.
+
+Every schema change needs to adhere to a “Non-Breaking Expansion" methodology":
+
+* Expose new version in a service interface
+* Support multiple versions in the consumer.
+
+Because code changes are easier to deploy with less moderation than Schema changes, you should make extensive use of config flags and controllers in your application code during this time.
+
+IMPORTANT: RULE OF THUMB: +
+Prefer ADDs over ALTERs (non-breaking expansion)
+
+A good example of this would be to merge two tables in a Database into one. `user_details` with `user_prefs` as `user_profile`. Or `users_v1` to `users_v2`
+
+===== Steps To Consider
+. Add new version to schema
+. Write to both versions
+. Backfill historical data
+. Read from new version
+. Cut-off writes to original version
+
+===== New Schema
+The first step is naturally to define the new schema using something like a SQL file. You generally do this once and therefore a good practice is to only deploy Schema changes through your pipeline once a week. These Schema changes affect things like defining new tables like `user_profile`
+
+.user_details
+|===
+|Name|Surname|Age
+|Joe|Everyday|25
+|===
+
+.user_prefs
+|===
+|bg_color|privacy|newsletter
+|none|true|false
+|===
+
+.user_profile
+|===
+|Name|Surname|Age|bg_color|privacy|newsletter
+|Joe|Everyday|25|none|true|false
+|===
+
+===== Write to both versions
+Once the new Schema has been defined, write to both. This does cost you a little more in performance for a while, but the benefits outweigh this extra cost.
+
+.Enable Writing Flags to new Schema
+[source,ruby]
+----
+“write_prefs_to_user_prefs_table” => “on”
+“write_prefs_to_users_table” => “on”
+“read_prefs_from_users_table” => “off”
+----
+
+===== Backfill Historical Data
+Once the Schema has been defined you schedule an Asynchronous process to backfill the data from the old tables to the new table and schema. This usually takes the form of an offline batch job. Remember, at this point you are still not using the new Schema in your application, and you also don't plan to use it fully yet.
+
+===== Read from new version
+During this phase you want to do some data validation tests. This is to ensure consistency both internally and in production. With this, you enable limited reads from the new schema version. Within your code have logic to query a certain percentage of data from the new schema version, compare it to the original and report it as a metric to something like CloudWatch.
+
+Incrementally increase this as your new metric shows that data being returned by the new schema is consistent with the original.
+
+.Enable new Schema for Staff only
+[source,ruby]
+----
+“write_prefs_to_user_prefs_table” => “on”
+“write_prefs_to_users_table” => “on”
+“read_prefs_from_users_table” => “staff”
+----
+
+.Enable new Schema for 5% of users
+[source,ruby]
+----
+“write_prefs_to_user_prefs_table” => “on”
+“write_prefs_to_users_table” => “on”
+“read_prefs_from_users_table” => “5%”
+----
+
+===== Cut off writes to original.
+At this point your data validation in the new Schema has been confirmed and you can cut off all writes and remove any code writing logic from your application.
+
+.Cut off writes
+[source,ruby]
+----
+“write_prefs_to_user_prefs_table” => “off”
+“write_prefs_to_users_table” => “on”
+“read_prefs_from_users_table” => “on”
+----
+
+==== Tools to consider.
+For the backfilling of data, services and tools like `EMR` and `DMS` can be very useful for transforming latent data into the new schema version.
+
+
