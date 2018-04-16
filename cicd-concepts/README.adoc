@@ -10,7 +10,7 @@ This section will demonstrate building a delivery pipeline that takes your code 
 == Pre-Requisites
 
 . Fork of this repository in your own github account
-. Completion of Lab4, with a petstore deployment in your kubernetes cluster.
+. Completion of Kubernetes Manifest Module, with a petstore deployment in your kubernetes cluster.
 
 == Setup
 
@@ -49,7 +49,7 @@ This section will demonstrate building a delivery pipeline that takes your code 
 
 === Deploy a change
 
-Make a change to `Lab2/app/src/main/webapp/shopping/main.xhtml` and then check in and commit your code at the root of your repo:
+Make a change to `containerize-application/app/src/main/webapp/shopping/main.xhtml` and then check in and commit your code at the root of your repo:
 
     git add . && git commit -m "testing ci/cd" && git push origin master
 

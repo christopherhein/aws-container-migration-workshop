@@ -8,31 +8,33 @@ config:
       value: "Default"
 
 modules:
-  Lab-1:
+  getting-started:
+    name: Getting Started
+  application-discovery:
     name: Application Discovery
-  Lab-2:
+  containerize-application:
     name: Containerize Application
-  Lab-3:
+  migrate-a-database:
     name: Migrate a Database
-  Lab-4:
+  kubernetes-manifests:
     name: Kubernetes Manifests
-  Lab-5:
+  configmaps-secrets:
     name: ConfigMaps and Secrets
-  Lab-6:
+  logging-monitoring:
     name: Logging and Monitoring
-  Lab-7:
+  cicd-concepts:
     name: CI/CD Concepts
-  Lab-8:
-    name: Security Practices
-  Lab-9:
+  # security-practices:
+  #   name: Security Practices
+  scaling-workloads:
     name: Scaling Workloads
-  Lab-10:
+  aws-edge-services:
     name: AWS Edge Services
-  Lab-11:
-    name: Decomposing Applications
-  Lab-12:
-    name: Other Workloads
-  Lab-13:
+  # decomposing-apps:
+  #   name: Decomposing Applications
+  # other-workloads:
+  #   name: Other Workloads
+  hybrid-considerations:
     name: Hybrid Considerations
     revisions:
       workshop_rax:

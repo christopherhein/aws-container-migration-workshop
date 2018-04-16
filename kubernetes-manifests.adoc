@@ -32,7 +32,7 @@ Kubernetes, we're going to talk about Kubernetes basics.
 
 ==== Getting Started
 
-1. To get started, switch to the Lab4 folder within this repository. Then create
+1. To get started, switch to the `kubernetes-manifests` folder within this repository. Then create
    a new file called `manifest.yaml`. Then open the `manifest.yaml` in your
    editor of choice.
 2. Then we're going to create a `Deployment` and a `Service` that will show you how

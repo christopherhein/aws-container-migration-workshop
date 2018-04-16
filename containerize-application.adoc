@@ -19,7 +19,7 @@ The Pet Store application is a Java 7 based application that runs on top of the 
 
 ==== Building the Dockerfile
 
-1. To get started, switch to the Lab2 folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
+1. To get started, switch to the `containerize-application` folder within this repository. Then create a new file `Dockerfile`. Then open the Dockerfile in your editor of choice.
 
 2. The first stage of our `Dockerfile` will be to build the application. We will use the `maven:3.5-jdk-7` container from Docker Hub as our base image. The first stage of our `Dockerfile` will need to copy the code into the container, install the dependencies, then build the application using Maven.
 
