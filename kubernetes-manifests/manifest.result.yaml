@@ -33,9 +33,9 @@ spec:
         - name: DB_NAME
           value: petstore
         - name: DB_USER
-          value: {REPLACE_WITH_RDS_USER}
+          value: petstore
         - name: DB_PASS
-          value: {REPLACE_WITH_RDS_PASS}
+          value: petstore
 ---
 apiVersion: v1
 kind: Service

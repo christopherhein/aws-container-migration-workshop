@@ -101,7 +101,7 @@ metadata:
 spec:
   containers:
   - name: petstore
-    image: christopherhein/petstore
+    image: christopherhein/petstore:latest
     ports:
     - name: http-server
       containerPort: 8080
@@ -117,13 +117,12 @@ spec:
     - name: DB_NAME
       value: petstore
     - name: DB_USER
-      value: {REPLACE_WITH_RDS_USER}
+      value: petstore
     - name: DB_PASS
-      value: {REPLACE_WITH_RDS_PASS}
+      value: petstore
 ----
 
-IMPORTANT: If you don't replace `{REPLACE_WITH_RDS_HOST}`,
-`{REPLACE_WITH_RDS_USER}`, `{REPLACE_WITH_RDS_PASS}`, `{REPLACE_WITH_RDS_URL}`
+IMPORTANT: If you don't replace `{REPLACE_WITH_RDS_HOST}`, `{REPLACE_WITH_RDS_URL}`
 your deployment won't successfully pass.
 
 Under the `spec.containers` you can see that we have and `image` which can be
@@ -245,7 +244,7 @@ spec:
     spec:
       containers:
       - name: petstore
-        image: christopherhein/petstore
+        image: christopherhein/petstore:latest
         ports:
         - name: http-server
           containerPort: 8080
@@ -261,9 +260,9 @@ spec:
         - name: DB_NAME
           value: petstore
         - name: DB_USER
-          value: {REPLACE_WITH_RDS_USER}
+          value: petstore
         - name: DB_PASS
-          value: {REPLACE_WITH_RDS_PASS}
+          value: petstore
 ---
 apiVersion: v1
 kind: Service
