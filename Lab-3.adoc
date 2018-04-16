@@ -42,7 +42,7 @@ Prefer ADDs over ALTERs (non-breaking expansion)
 
 A good example of this would be to merge two tables in a Database into one. `user_details` with `user_prefs` as `user_profile`. Or `users_v1` to `users_v2`
 
-*Steps To Consider*
+===== Steps To Consider
 . Add new version to schema
 . Write to both versions
 . Backfill historical data
