@@ -101,7 +101,7 @@ metadata:
 spec:
   containers:
   - name: petstore
-    image: {REPLACE_WITH_ECR_REGISTRY}/petstore
+    image: christopherhein/petstore
     ports:
     - name: http-server
       containerPort: 8080
