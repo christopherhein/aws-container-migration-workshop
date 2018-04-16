@@ -50,7 +50,7 @@ echo "export AWS_AVAILABILITY_ZONES KOPS_STATE_STORE" >> ~/.bash_profile
 # Create SSH key
 ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-if [ ! -d "aws-workshop-for-kubernetes/" ]; then
+if [ ! -d "aws-container-migration-workshop/" ]; then
   # Download lab Repository
   git clone https://github.com/christopherhein/aws-container-migration-workshop.git
 fi

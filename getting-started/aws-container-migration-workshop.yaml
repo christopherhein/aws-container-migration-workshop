@@ -2,7 +2,7 @@ Description: >
   This template setups up the work shop.
 Parameters:
   KeyName:
-    Type: String
+    Type: AWS::EC2::KeyPair::KeyName
 
 Metadata: {}
 

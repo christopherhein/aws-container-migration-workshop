@@ -34,10 +34,10 @@ the CI/CD portion of the workshop.
 We can create the Cloud9 development environment via CloudFormation.
 This CloudFormation template will spin up the Cloud9 IDE, as well as configure the IDE environment for the rest of the workshop.
 
-Click on the "Deploy to AWS" button and follow the CloudFormation prompts to begin.
+Click on the *Deploy to AWS* button and follow the CloudFormation prompts to begin.
 
-[NOTE]
-Please choose the region closest to you.
+// [NOTE]
+// Please choose the region closest to you.
 
 |===
 
@@ -47,7 +47,7 @@ a| image::./deploy-to-aws.png[link=https://console.aws.amazon.com/cloudformation
 
 |===
 
-To open the Cloud9 IDE environment, click on the "Outputs" tab in CloudFormation Console and click on the "Cloud9IDE" URL.
+To open the Cloud9 IDE environment, click on the *Outputs* tab in CloudFormation Console and click on the *Cloud9Endpoint* URL.
 
 image:cloudformation-output-tab.png[CloudFormation Output Tab]
 
@@ -57,93 +57,96 @@ image:cloud9-development-environment-welcome.png[]
 
 === Build Script
 
-Once your Cloud9 is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script installs the following:
+Once your Cloud9 environment is ready, download the build script and install in your IDE. This will prepare your IDE for running tutorials in this workshop. The build script installs the following:
 
-- jq
-- kubectl _(the Kubernetes CLI, which we'll cover in great detail later in the workshop)_
-- kops _(Kubernetes Operations, which we'll also cover in detail later)_
-- configures the AWS CLI and stores necessary environment variables in bash_profile
+- `jq`
+- `kubectl`
+- `kops`
+- `aws`
 - creates an SSH key
 - clone the workshop repository into Cloud9
 
-To install the script, run this command in the "bash" terminal tab of the Cloud9 IDE:
+To install the script, run this command in the *bash* terminal tab of the Cloud9 IDE:
 
-    aws s3 cp s3://aws-container-migration-workshop/lab-ide-build.sh . && \
-    chmod +x lab-ide-build.sh && \
-    . ./lab-ide-build.sh
+[source,shell]
+----
+aws s3 cp s3://aws-container-migration-workshop/lab-ide-build.sh . && \
+chmod +x lab-ide-build.sh && \
+. ./lab-ide-build.sh
+----
 
 image:cloud9-run-script.png[Running the script in Cloud9 Terminal]
 
-[NOTE]
-All shell commands _(starting with "$")_ throughout the rest of the workshop should be run in this tab. You may want to resize it upwards to make it larger.
+At this point you can restart the Cloud9 IDE terminal session to ensure that the `kubectl` completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. *You do not have to run the command.* It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
 
-At this point you can restart the Cloud9 IDE terminal session to ensure that the kublectl completion is enabled. Once a new terminal window is opened, type `kubectl get nodes`. You do not have to run the command. It is normal for this command to fail with an error message if you run it. You have not yet created the Kubernetes cluster. We are merely testing to make sure the `kubectl` tool is installed on the command line correctly and can autocomplete.
-
-One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the "AWS Cloud9" menu, go to "Preferences", go to "AWS Settings", and disable "AWS managed temporary credentials" as depicted in the diagram here:
+[IMPORTANT]
+One last step is required so that the Cloud9 IDE uses the assigned IAM Instance profile. Open the *AWS Cloud9* menu, go to *Preferences*, go to *AWS Settings*, and disable *AWS managed temporary credentials* as depicted in the diagram here:
 
 image:cloud9-disable-temp-credentials.png[]
 
 ==== Create kops cluster
 
+[source,shell]
+----
+kops create cluster \
+  --name example.cluster.k8s.local \
+  --zones $AWS_AVAILABILITY_ZONES \
+  --yes
+----
 
-    kops create cluster \
-      --name example.cluster.k8s.local \
-      --zones $AWS_AVAILABILITY_ZONES \
-      --yes
-
-==== Validate everything is working as intended
+=== Validation
 
 We deployed a good amount of AWS resources and infrastructure, before moving on lets perform a few validation tests to assure everything is working as intended.
 
-. Validate connection to the postgres instance.
-Check the output from the main cloudformation stack and look for the "RDSEndpoint".
+==== Validate Postgres Connection
+Check the Outputs from the main CloudFormation stack and look for the *RDSEndpoint*.
 
 Connect to your postgresql instance:
 
-    psql -h <RDSEndpoint> -U petstore -d postgres
+[source,shell]
+----
+psql -h <RDSEndpoint> -U petstore -d postgres
+----
 
-Create the petstore db
+This should prompt you for a password with is `petstore`.
 
-    CREATE DATABASE petstore;
+Next we can create the `petstore` database once we have authenticated.
+
+[source,shell]
+----
+CREATE DATABASE petstore;
+----
 
 Show all databases:
 
-    \l
+[source,shell]
+----
+\l
+----
 
 Exit database:
 
-    \q
+[source,shell]
+----
+\q
+----
 
-. Verify connection to the Jenkins instance
+==== Validate Jenkins Connection
 
-From the cloudformation output retrieve the Jenkins ip and open in a browser. The credentials are as follows:
+From the cloudformation output retrieve the *JenkinsIP* and open in a browser. The credentials are as follows:
 
-    u: jenkins
-    p: jenkins101
+[source,shell]
+----
+u: jenkins
+p: jenkins101
+----
 
-. Verify that your Kubernetes cluster shows 3 instances:
+==== Validate Kubernetes Cluster
 
-    kubectl get nodes
+After the `kops create cluster` command has finished it will talk a couple minutes before the cluster is accessible. To test this run:
 
-== Workshop Cleanup
+[source,shell]
+----
+kops validate cluster
+----
 
-Once you have finished with the workshop, please don't forget to spin down your cluster or you will incur additional charges.
-(We will also remind you at the end!)
-
-==== Delete Kubernetes cluster resources
-
-In your Cloud9 IDE, check if there are any running kubernetes clusters
-
-   $ kops get cluster
-
-Delete kubernetes cluster
-
-   $ kops delete cluster example.cluster.k8s.local --yes
-
-Wait until all resources are deleted by kops
-
-==== Delete Cloud9 Envionment
-
-Go to CloudFormation console, right click template with name 'k8s-workshop' and select 'Delete Stack'
-
-This should delete all the resources associated with this workshop
