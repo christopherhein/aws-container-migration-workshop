@@ -15,28 +15,62 @@
 
 *Lab Requirements:*
 
-* Git client installed
-* Github.com account
-* Text editor
+* fork of this repository in your own github account (https://github.com/christopherhein/aws-container-migration-workshop)
+* Completion of Kubernetes Manifest Module, with a petstore deployment in your kubernetes cluster.
 
 *Average Lab Time:*
 30 - 45 minutes
 ****
 
 === Introduction
-Now that we have the Pet Store application containerized and leveraging k8s
-for deployment and application lifecycle management it is time to automate the
-deployment process. In this part of the workshop we will deploy a Jenkins container
-pre-configured and use it to deploy new versions of the Pet Store application. We will
-discover common CI/CD concepts and introduce testing and security functionality as part
- of the deployment process.
+This section will demonstrate building a delivery pipeline that takes your code changes from a source control repository and deploy it into your container cluster with no manual intervention.
 
-===== Configure pipeline
+== Setup
 
-===== Deploy Sample Application
+=== Kubernetes secrets
 
-kubectl apply -f https://raw.githubusercontent.com/omarlari/aws-container-sample-app/master/deployment-hello.yaml
+Copy your kubeconfig, from your Cloud9 IDE copy the contents of:
 
+[source,shell]
+----
+cat ~/.kube/config
+----
 
-- Deploy a change to the application
-- View change in browser
+Create a file on your Jenkins instance with the contents of the above at `~/.kube/config`
+
+=== Jenkins
+From the main workshop cloudformation output section, look for your `JenkinsIP`, open this up in a browser and login:
+
+[source,shell]
+----
+username: jenkins
+password: jenkins101
+----
+
+Click on the job `aws-workshop` and to the left click on the `configure` link.
+
+Check the box labeled `GitHub Project` and then enter your GitHub URL in the `Project url` section.
+
+Scroll down to the `parameters` section and enter your ECR respository name as the default value for the `ECR_REPO` parameter.
+
+Scroll down to the `Build Triggers` section and check the box labeled `GitHub hook trigger for GITScm polling`.
+
+Scroll all the way down and click `Apply` and then `Save`.
+
+=== Github
+
+Open a browser window to the GitHub fork and click on the `Settings` tab in the upper right hand corner.
+
+Click on the `Webhooks` link on the left side of the screen and then click the `Add Webhook` button in the upper right hand corner.
+
+In the `Payload URL` dialog box enter `http://<JenkinsIP>/github-webhook/`, replacing `<JenkinsIP>` with the IP address of your Jenkins instance.
+
+=== Deploy a change
+
+Make a change to `containerize-application/app/src/main/webapp/shopping/main.xhtml` and then check in and commit your code at the root of your repo:
+
+    git add . && git commit -m "testing ci/cd" && git push origin master
+
+Go back to your Jenkins browser and watch as your code change moves through the various stages.
+
+Once the deployment is completed you can go back to your petstore application and see your change reflected.
