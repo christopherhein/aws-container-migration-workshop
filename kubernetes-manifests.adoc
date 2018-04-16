@@ -18,7 +18,7 @@
 ****
 
 === Introduction
-Just like you did in link:../Lab-2.adoc[Lab 2] where you created a
+Just like you did in link:../containerize-application.adoc[Containerize Application] where you created a
 docker-compose.yaml file to deploy your containerized application to Docker for
 X in this module we will create the necessary configurations to deploy the
 petstore into a Kubernetes cluster running in AWS connecting to an RDS database.
