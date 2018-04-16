@@ -1,9 +1,9 @@
-= Container Adoption Lab - Module 7
-
-:toc:
+= Container Adoption Lab
 :icons:
 :linkattrs:
 :imagesdir: ../images
+
+== CI/CD Concepts
 
 ****
 *Expected Outcome:*

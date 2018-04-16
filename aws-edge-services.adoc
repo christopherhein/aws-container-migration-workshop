@@ -2,7 +2,7 @@
 
 :imagesdir: ./images
 
-== Module 10
+== AWS Edge Services
 
 ****
 *Expected Outcome:*
