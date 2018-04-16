@@ -18,7 +18,7 @@ modules:
     name: Migrate a Database
   kubernetes-manifests:
     name: Kubernetes Manifests
-  configmaps-secrets:
+  configmap-secrets:
     name: ConfigMaps and Secrets
   logging-monitoring:
     name: Logging and Monitoring

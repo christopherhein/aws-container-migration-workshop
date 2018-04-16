@@ -1,7 +1,13 @@
-= Container Adoption Lab - Module 11
+= Container Adoption Lab 
 
-=== Expected Outcome:
+== Decomposing Applications
 
-=== Lab Requirements:
+****
+*Expected Outcome:*
 
-=== Average Lab Time:
+*Lab Requirements:*
+
+*Average Lab Time:*
+****
+
+=== Lab

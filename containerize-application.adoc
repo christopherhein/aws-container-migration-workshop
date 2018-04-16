@@ -1,20 +1,23 @@
-= Container Adoption Lab - Module 2
+= Container Adoption Lab
 
-=== Expected Outcome:
+== Containerize Application
 
-- Install Docker Tooling
-- Build the Pet Store application within a Container
-- Deploy the Pet Store application to a Wildfly based Application Server
+****
+*Expected Outcome:*
 
-=== Lab Requirements:
+* Install Docker Tooling
+* Build the Pet Store application within a Container
+* Deploy the Pet Store application to a Wildfly based Application Server
 
-- [Docker for Mac](https://docs.docker.com/docker-mac), [Docker for Windows](https://docs.docker.com/docker-for-mac/install/), or [Docker for Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
+*Lab Requirements:*
 
-=== Average Lab Time: 30-45 minutes
+** link:https://docs.docker.com/docker-mac[Docker for Mac], link:https://docs.docker.com/docker-for-mac/install/[Docker for Windows], or https://docs.docker.com/install/linux/docker-ce/ubuntu/[Docker for Linux] depending on your Operating System
 
-=== The Lab
+*Average Lab Time:* 
+30-45 minutes
+****
 
-==== Overview
+=== Introduction
 The Pet Store application is a Java 7 based application that runs on top of the Wildfly (JBoss) application server. The application is built using Maven. We will walk through the steps to build the application using a Maven container then deploying our WAR file to the Wildfly container. We will be using multi-stage builds to facilitate creating a minimal container.
 
 ==== Building the Dockerfile

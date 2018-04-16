@@ -2,23 +2,23 @@
 
 == Module 9
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-1. Setup Horizontal Pod Autoscaler
-2. Run simulated load to increase pods deployed
-3. Install Cluster Autoscaler
-4. Run simulated load and see more instances boot
+* Setup Horizontal Pod Autoscaler
+* Run simulated load to increase pods deployed
+* Install Cluster Autoscaler
+* Run simulated load and see more instances boot
 
-=== Lab Requirements:
+*Lab Requirements:*
 
-1. Kubernetes cluster
+* Kubernetes cluster
 
-=== Average Lab Time: 30 minutes
+*Average Lab Time:* 
+30 minutes
+****
 
-=== Lab
-
-==== Overview
-
+=== Introduction
 In the last few labs we've walk through creating your applications, deploying
 them into Kubernetes, setting up a CI/CD pipeline, logging your applications and
 many more. In this Lab we're going to shwo you a couple ways you can make your

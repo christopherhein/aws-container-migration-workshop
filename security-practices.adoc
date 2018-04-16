@@ -1,7 +1,12 @@
-= Container Adoption Lab - Module 8
+= Container Adoption Lab
 
-=== Expected Outcome:
+== Security Practices
 
-=== Lab Requirements:
+****
+*Expected Outcome:*
 
-=== Average Lab Time:
+*Lab Requirements:*
+
+*Average Lab Time:*
+
+****

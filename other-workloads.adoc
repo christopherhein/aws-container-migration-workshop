@@ -1,7 +1,10 @@
 = Container Adoption Lab - Module 12
 
-=== Expected Outcome:
+****
+*Expected Outcome:*
 
-=== Lab Requirements:
+*Lab Requirements:*
 
-=== Average Lab Time:
+*Average Lab Time:*
+
+****
