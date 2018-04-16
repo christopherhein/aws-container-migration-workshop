@@ -1,6 +1,6 @@
 = Container Adoption Lab
 
-== Module 4
+== Kubernetes Manifests
 
 ****
 *Expected Outcome:*

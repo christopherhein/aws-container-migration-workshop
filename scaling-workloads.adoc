@@ -1,6 +1,6 @@
 = Container Adoption Lab
 
-== Module 9
+== Scaling Workloads
 
 ****
 *Expected Outcome:*
